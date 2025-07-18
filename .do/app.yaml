@@ -1,0 +1,52 @@
+name: safelift-suite
+region: nyc1
+
+services:
+  - name: api
+    source_dir: /backend
+    github:
+      repo: Ajalways/safelift-suite
+      branch: main
+    run_command: npm start
+    build_command: npm install
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 3001
+    
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        value: safelift-super-secret-jwt-key-2025
+    
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 60
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+    
+    routes:
+      - path: /api
+
+  - name: frontend
+    source_dir: /frontend
+    github:
+      repo: Ajalways/safelift-suite
+      branch: main
+    build_command: npm install && npm run build
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    
+    routes:
+      - path: /
+    
+    static_sites:
+      - name: safelift-frontend
+        source_dir: /build
+        index_document: index.html
+        error_document: index.html
+        catchall_document: index.html
