@@ -5,22 +5,22 @@ const API_URL = 'https://clownfish-app-3lhwr.ondigitalocean.app';
 function App() {
   const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Login form state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   // Registration form state
-  const [regForm, setRegForm] = useState({
-    companyName: '',
-    companyPhone: '',
-    companyAddress: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    plan: 'starter'
-  });
+  const [companyName, setCompanyName] = useState('');
+  const [companyPhone, setCompanyPhone] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
+  const [plan, setPlan] = useState('starter');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
 
   // Check if user is already logged in
   useEffect(() => {
@@ -32,14 +32,17 @@ function App() {
 
   const checkAuth = async (token) => {
     try {
-      const response = await fetch(`${API_URL}/auth/me`, {
+      const response = await fetch(`${API_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
       if (data.success) {
         setUser(data.user);
+      } else {
+        localStorage.removeItem('safelift_token');
       }
     } catch (error) {
+      console.error('Auth check failed:', error);
       localStorage.removeItem('safelift_token');
     }
   };
@@ -50,7 +53,7 @@ function App() {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -65,22 +68,32 @@ function App() {
         setError(data.error || 'Login failed');
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError('Login failed. Please check your connection.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRegister = async (e) => {
+  const handleRegistration = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(regForm)
+        body: JSON.stringify({
+          companyName,
+          companyPhone,
+          companyAddress,
+          plan,
+          firstName,
+          lastName,
+          email: regEmail,
+          password: regPassword
+        })
       });
 
       const data = await response.json();
@@ -92,6 +105,7 @@ function App() {
         setError(data.error || 'Registration failed');
       }
     } catch (error) {
+      console.error('Registration error:', error);
       setError('Registration failed. Please check your connection.');
     } finally {
       setLoading(false);
@@ -103,10 +117,13 @@ function App() {
     setUser(null);
     setEmail('');
     setPassword('');
-  };
-
-  const updateRegForm = (field, value) => {
-    setRegForm(prev => ({ ...prev, [field]: value }));
+    setRegEmail('');
+    setRegPassword('');
+    setCompanyName('');
+    setCompanyPhone('');
+    setCompanyAddress('');
+    setFirstName('');
+    setLastName('');
   };
 
   // If user is logged in, show dashboard
@@ -124,16 +141,32 @@ function App() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
         }}>
-          <h1 style={{ color: '#1e293b', margin: 0, fontSize: '1.5rem' }}>SafeLift Suite</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'linear-gradient(135deg, #FFB800, #E67E00)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '1.2rem'
+            }}>
+              🏗️
+            </div>
+            <h1 style={{ color: '#1e293b', margin: 0, fontSize: '1.5rem' }}>SafeLift Suite</h1>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontWeight: '600', color: '#1e293b' }}>
                 {user.firstName} {user.lastName}
               </div>
-              <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                {user.role} • {user.email}
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                {user.company?.name} ({user.role})
               </div>
             </div>
             <button 
@@ -157,84 +190,113 @@ function App() {
           <div style={{
             background: 'white',
             padding: '2rem',
-            borderRadius: '0.75rem',
+            borderRadius: '1rem',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e5e7eb'
+            maxWidth: '800px',
+            margin: '0 auto'
           }}>
-            <h2 style={{ color: '#1e293b', marginBottom: '1rem' }}>
-              🎉 Welcome to SafeLift Suite!
-            </h2>
-            <p style={{ color: '#64748b', marginBottom: '2rem' }}>
-              Your authentication system is working perfectly. You're successfully logged in!
-            </p>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ 
+                color: '#1e293b', 
+                fontSize: '2rem', 
+                marginBottom: '1rem',
+                background: 'linear-gradient(135deg, #1e3a8a, #3730a3)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                🎉 Welcome to SafeLift Suite!
+              </h2>
+              <p style={{ color: '#6b7280', fontSize: '1.1rem' }}>
+                Your crane management platform is ready to use.
+              </p>
+            </div>
             
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '1rem',
+              background: 'linear-gradient(135deg, #f0fdf4, #ecfdf5)',
+              padding: '1.5rem',
+              borderRadius: '0.75rem',
+              border: '1px solid #86efac',
               marginBottom: '2rem'
             }}>
-              <div style={{
-                background: '#f0fdf4',
-                padding: '1.5rem',
-                borderRadius: '0.5rem',
-                border: '1px solid #86efac'
+              <h3 style={{ 
+                color: '#166534', 
+                margin: '0 0 1rem 0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}>
-                <h3 style={{ color: '#166534', margin: '0 0 0.5rem 0' }}>✅ Authentication</h3>
-                <p style={{ color: '#166534', margin: 0, fontSize: '0.9rem' }}>
-                  Multi-tenant login system working
+                ✅ Authentication System Complete
+              </h3>
+              <div style={{ color: '#166534', lineHeight: '1.6' }}>
+                <p style={{ margin: '0 0 0.5rem 0' }}>
+                  • Multi-tenant authentication working perfectly
                 </p>
-              </div>
-              
-              <div style={{
-                background: '#eff6ff',
-                padding: '1.5rem',
-                borderRadius: '0.5rem',
-                border: '1px solid #93c5fd'
-              }}>
-                <h3 style={{ color: '#1e40af', margin: '0 0 0.5rem 0' }}>🔐 Security</h3>
-                <p style={{ color: '#1e40af', margin: 0, fontSize: '0.9rem' }}>
-                  JWT tokens & password encryption
+                <p style={{ margin: '0 0 0.5rem 0' }}>
+                  • Company: {user.company?.name} ({user.company?.plan} plan)
                 </p>
-              </div>
-              
-              <div style={{
-                background: '#fdf4ff',
-                padding: '1.5rem',
-                borderRadius: '0.5rem',
-                border: '1px solid #d8b4fe'
-              }}>
-                <h3 style={{ color: '#7c3aed', margin: '0 0 0.5rem 0' }}>🏢 Multi-tenant</h3>
-                <p style={{ color: '#7c3aed', margin: 0, fontSize: '0.9rem' }}>
-                  Company data separation ready
+                <p style={{ margin: '0 0 0.5rem 0' }}>
+                  • Role-based access control enabled
+                </p>
+                <p style={{ margin: '0' }}>
+                  • PostgreSQL database connected and synchronized
                 </p>
               </div>
             </div>
 
             <div style={{
-              background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
-              padding: '1.5rem',
-              borderRadius: '0.5rem',
-              border: '1px solid #f59e0b'
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '1rem',
+              marginTop: '2rem'
             }}>
-              <h3 style={{ color: '#92400e', margin: '0 0 1rem 0' }}>🚀 Ready for Next Phase</h3>
-              <p style={{ color: '#92400e', margin: '0 0 1rem 0' }}>
-                Authentication system complete! Ready to add:
-              </p>
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '0.5rem',
-                fontSize: '0.9rem',
-                color: '#92400e'
+                background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+                padding: '1.5rem',
+                borderRadius: '0.75rem',
+                border: '1px solid #93c5fd'
               }}>
-                <div>🏗️ Crane fleet management</div>
-                <div>📋 OSHA inspection system</div>
-                <div>📅 Job scheduling</div>
-                <div>👷 Operator management</div>
-                <div>🔧 Maintenance tracking</div>
-                <div>📊 Incident reporting</div>
+                <h4 style={{ color: '#1e40af', margin: '0 0 0.5rem 0' }}>🏗️ Crane Management</h4>
+                <p style={{ color: '#1e40af', margin: 0, fontSize: '0.9rem' }}>
+                  Ready to add crane fleet management features
+                </p>
               </div>
+              
+              <div style={{
+                background: 'linear-gradient(135deg, #fefce8, #fef3c7)',
+                padding: '1.5rem',
+                borderRadius: '0.75rem',
+                border: '1px solid #fbbf24'
+              }}>
+                <h4 style={{ color: '#92400e', margin: '0 0 0.5rem 0' }}>📋 OSHA Inspections</h4>
+                <p style={{ color: '#92400e', margin: 0, fontSize: '0.9rem' }}>
+                  Ready to add inspection management system
+                </p>
+              </div>
+              
+              <div style={{
+                background: 'linear-gradient(135deg, #f3e8ff, #e9d5ff)',
+                padding: '1.5rem',
+                borderRadius: '0.75rem',
+                border: '1px solid #c084fc'
+              }}>
+                <h4 style={{ color: '#7c2d12', margin: '0 0 0.5rem 0' }}>👥 Job Scheduling</h4>
+                <p style={{ color: '#7c2d12', margin: 0, fontSize: '0.9rem' }}>
+                  Ready to add job management features
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              textAlign: 'center',
+              marginTop: '2rem',
+              padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '0.5rem'
+            }}>
+              <p style={{ color: '#6b7280', margin: 0 }}>
+                🚀 <strong>SafeLift Suite</strong> is now live with complete authentication!<br/>
+                Ready to build crane management features for your customers.
+              </p>
             </div>
           </div>
         </main>
@@ -242,123 +304,92 @@ function App() {
     );
   }
 
-  // Authentication forms
+  // Login/Registration form
   return (
     <div style={{
       minHeight: '100vh',
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-      fontFamily: 'system-ui'
+      display: 'flex',
+      fontFamily: 'system-ui',
+      background: '#f8fafc'
     }}>
       {/* Left side - Branding */}
       <div style={{
+        flex: '1',
         background: 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)',
-        padding: '4rem',
         display: 'flex',
-        flexDirection: 'column',
+        alignItems: 'center',
         justifyContent: 'center',
-        color: 'white',
-        position: 'relative'
+        padding: '2rem',
+        color: 'white'
       }}>
-        <div style={{ marginBottom: '3rem' }}>
+        <div style={{ textAlign: 'center', maxWidth: '400px' }}>
           <div style={{
-            fontSize: '3rem',
-            marginBottom: '1rem'
-          }}>🏗️</div>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            margin: '0 0 0.5rem 0',
+            width: '80px',
+            height: '80px',
             background: 'linear-gradient(135deg, #FFB800, #E67E00)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
+            borderRadius: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 2rem auto',
+            fontSize: '2rem'
           }}>
+            🏗️
+          </div>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontWeight: '700' }}>
             SafeLift Suite
           </h1>
-          <p style={{ fontSize: '1.2rem', opacity: 0.9, margin: 0 }}>
-            Professional Crane Management Platform
+          <p style={{ fontSize: '1.2rem', opacity: 0.9, lineHeight: '1.6' }}>
+            Professional crane management platform for construction companies and crane operators.
           </p>
-        </div>
-
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-            <span style={{ fontSize: '1.5rem' }}>🏗️</span>
-            <div>
-              <h3 style={{ margin: '0 0 0.25rem 0' }}>Fleet Management</h3>
-              <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.8 }}>
-                Track and manage your entire crane fleet
-              </p>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-            <span style={{ fontSize: '1.5rem' }}>✅</span>
-            <div>
-              <h3 style={{ margin: '0 0 0.25rem 0' }}>OSHA Compliance</h3>
-              <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.8 }}>
-                Digital inspections and safety docs
-              </p>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-            <span style={{ fontSize: '1.5rem' }}>📅</span>
-            <div>
-              <h3 style={{ margin: '0 0 0.25rem 0' }}>Job Scheduling</h3>
-              <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.8 }}>
-                Efficient scheduling with conflict detection
-              </p>
-            </div>
+          <div style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.8 }}>
+            ✅ OSHA Compliance • 📊 Fleet Management • 📋 Digital Inspections
           </div>
         </div>
       </div>
 
-      {/* Right side - Forms */}
+      {/* Right side - Form */}
       <div style={{
-        padding: '2rem',
+        flex: '1',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'white'
+        padding: '2rem'
       }}>
         <div style={{
-          width: '100%',
-          maxWidth: '500px',
           background: 'white',
+          padding: '2.5rem',
           borderRadius: '1rem',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-          padding: '2.5rem',
-          border: '1px solid #e2e8f0'
+          width: '100%',
+          maxWidth: '420px'
         }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b', margin: '0 0 0.5rem 0' }}>
-              {isLogin ? 'Sign In to SafeLift Suite' : 'Create Your Account'}
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b', marginBottom: '0.5rem' }}>
+              {isLogin ? 'Sign In' : 'Create Account'}
             </h2>
-            <p style={{ color: '#64748b', fontSize: '0.95rem', margin: 0 }}>
-              {isLogin ? 'Enter your credentials to access your dashboard' : 'Get started with your crane management platform'}
+            <p style={{ color: '#6b7280' }}>
+              {isLogin ? 'Access your crane management dashboard' : 'Start managing your crane operations'}
             </p>
           </div>
-
+          
           {error && (
             <div style={{
-              background: 'linear-gradient(135deg, #fecaca, #f87171)',
+              background: '#fecaca',
               color: '#991b1b',
-              padding: '0.75rem 1rem',
+              padding: '0.75rem',
               borderRadius: '0.5rem',
-              marginBottom: '1.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontSize: '0.9rem',
-              border: '1px solid #fca5a5'
+              marginBottom: '1rem',
+              border: '1px solid #fca5a5',
+              fontSize: '0.9rem'
             }}>
-              <span>⚠️</span>
               {error}
             </div>
           )}
-
+          
           {isLogin ? (
             // Login Form
-            <div>
+            <form onSubmit={handleLogin}>
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
                   Email Address
@@ -372,11 +403,12 @@ function App() {
                   disabled={loading}
                   style={{
                     width: '100%',
-                    padding: '0.75rem 1rem',
+                    padding: '0.75rem',
                     border: '2px solid #e5e7eb',
                     borderRadius: '0.5rem',
-                    fontSize: '0.95rem',
-                    transition: 'all 0.2s ease'
+                    fontSize: '1rem',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
                   }}
                 />
               </div>
@@ -394,254 +426,243 @@ function App() {
                   disabled={loading}
                   style={{
                     width: '100%',
-                    padding: '0.75rem 1rem',
+                    padding: '0.75rem',
                     border: '2px solid #e5e7eb',
                     borderRadius: '0.5rem',
-                    fontSize: '0.95rem',
-                    transition: 'all 0.2s ease'
+                    fontSize: '1rem',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
                   }}
                 />
               </div>
               
               <button
-                onClick={handleLogin}
+                type="submit"
                 disabled={loading || !email || !password}
                 style={{
                   width: '100%',
                   background: loading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                   color: 'white',
                   border: 'none',
-                  padding: '0.875rem 1.5rem',
+                  padding: '0.875rem',
                   borderRadius: '0.5rem',
-                  fontSize: '0.95rem',
+                  fontSize: '1rem',
                   fontWeight: '600',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  transition: 'transform 0.1s'
                 }}
               >
                 {loading ? 'Signing In...' : 'Sign In'}
               </button>
-            </div>
+            </form>
           ) : (
             // Registration Form
-            <div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', color: '#1e293b' }}>Company Information</h3>
-                
-                <div style={{ marginBottom: '1rem' }}>
+            <form onSubmit={handleRegistration}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
-                    Company Name *
+                    First Name
                   </label>
                   <input
                     type="text"
-                    value={regForm.companyName}
-                    onChange={(e) => updateRegForm('companyName', e.target.value)}
-                    placeholder="ABC Crane Services"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="John"
                     required
+                    disabled={loading}
                     style={{
                       width: '100%',
-                      padding: '0.75rem 1rem',
+                      padding: '0.75rem',
                       border: '2px solid #e5e7eb',
                       borderRadius: '0.5rem',
-                      fontSize: '0.95rem'
+                      fontSize: '1rem'
                     }}
                   />
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
-                      Phone *
-                    </label>
-                    <input
-                      type="tel"
-                      value={regForm.companyPhone}
-                      onChange={(e) => updateRegForm('companyPhone', e.target.value)}
-                      placeholder="(555) 123-4567"
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem 1rem',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.95rem'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
-                      Plan
-                    </label>
-                    <select
-                      value={regForm.plan}
-                      onChange={(e) => updateRegForm('plan', e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem 1rem',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.95rem'
-                      }}
-                    >
-                      <option value="starter">Starter ($49/mo)</option>
-                      <option value="professional">Professional ($99/mo)</option>
-                      <option value="enterprise">Enterprise ($199/mo)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '1rem' }}>
+                <div>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
-                    Address *
+                    Last Name
                   </label>
                   <input
                     type="text"
-                    value={regForm.companyAddress}
-                    onChange={(e) => updateRegForm('companyAddress', e.target.value)}
-                    placeholder="123 Industrial Blvd"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Smith"
                     required
+                    disabled={loading}
                     style={{
                       width: '100%',
-                      padding: '0.75rem 1rem',
+                      padding: '0.75rem',
                       border: '2px solid #e5e7eb',
                       borderRadius: '0.5rem',
-                      fontSize: '0.95rem'
+                      fontSize: '1rem'
                     }}
                   />
                 </div>
               </div>
 
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
+                  Company Name
+                </label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="ABC Crane Services"
+                  required
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={companyPhone}
+                    onChange={(e) => setCompanyPhone(e.target.value)}
+                    placeholder="(555) 123-4567"
+                    disabled={loading}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '0.5rem',
+                      fontSize: '1rem'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
+                    Plan
+                  </label>
+                  <select
+                    value={plan}
+                    onChange={(e) => setPlan(e.target.value)}
+                    disabled={loading}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '0.5rem',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    <option value="starter">Starter ($49/mo)</option>
+                    <option value="professional">Professional ($99/mo)</option>
+                    <option value="enterprise">Enterprise ($199/mo)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
+                  Address
+                </label>
+                <input
+                  type="text"
+                  value={companyAddress}
+                  onChange={(e) => setCompanyAddress(e.target.value)}
+                  placeholder="123 Main St, City, State"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  placeholder="john@company.com"
+                  required
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+              
               <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', color: '#1e293b' }}>Admin User</h3>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
-                      First Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={regForm.firstName}
-                      onChange={(e) => updateRegForm('firstName', e.target.value)}
-                      placeholder="John"
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem 1rem',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.95rem'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
-                      Last Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={regForm.lastName}
-                      onChange={(e) => updateRegForm('lastName', e.target.value)}
-                      placeholder="Smith"
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem 1rem',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.95rem'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={regForm.email}
-                    onChange={(e) => updateRegForm('email', e.target.value)}
-                    placeholder="john@abccranes.com"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 1rem',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.95rem'
-                    }}
-                  />
-                </div>
-
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
-                    Password *
-                  </label>
-                  <input
-                    type="password"
-                    value={regForm.password}
-                    onChange={(e) => updateRegForm('password', e.target.value)}
-                    placeholder="Minimum 8 characters"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 1rem',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.95rem'
-                    }}
-                  />
-                </div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                  placeholder="Choose a secure password"
+                  required
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem'
+                  }}
+                />
               </div>
               
               <button
-                onClick={handleRegister}
-                disabled={loading || !regForm.companyName || !regForm.firstName || !regForm.email || !regForm.password}
+                type="submit"
+                disabled={loading || !regEmail || !regPassword || !companyName || !firstName || !lastName}
                 style={{
                   width: '100%',
                   background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white',
                   border: 'none',
-                  padding: '0.875rem 1.5rem',
+                  padding: '0.875rem',
                   borderRadius: '0.5rem',
-                  fontSize: '0.95rem',
+                  fontSize: '1rem',
                   fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  cursor: loading ? 'not-allowed' : 'pointer'
                 }}
               >
                 {loading ? 'Creating Account...' : 'Create Account'}
               </button>
-            </div>
+            </form>
           )}
-
-          <div style={{
-            textAlign: 'center',
-            marginTop: '2rem',
-            paddingTop: '1.5rem',
-            borderTop: '1px solid #e5e7eb'
-          }}>
-            <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: '0 0 1rem 0' }}>
-              {isLogin ? "Don't have an account?" : "Already have an account?"}
-            </p>
+          
+          <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
             <button
-              onClick={() => setIsLogin(!isLogin)}
-              disabled={loading}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError('');
+              }}
               style={{
                 background: 'none',
                 border: 'none',
                 color: '#3b82f6',
-                fontWeight: '500',
                 cursor: 'pointer',
-                fontSize: '0.9rem',
-                textDecoration: 'underline'
+                textDecoration: 'underline',
+                fontSize: '0.9rem'
               }}
             >
-              {isLogin ? 'Create Account' : 'Sign In'}
+              {isLogin ? "Don't have an account? Create one" : "Already have an account? Sign in"}
             </button>
           </div>
         </div>
