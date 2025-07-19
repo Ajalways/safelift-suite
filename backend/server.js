@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -10,22 +12,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'safelift-super-secret-jwt-key-2025';
 
-//// Database connection
+// Database connection
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  },
-  logging: false,
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
-  }
+  logging: false
 });
 
 // Database Models
