@@ -163,7 +163,7 @@ function App() {
           </div>
         )}
         
-        <form onSubmit={handleLogin}>
+        <div>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151' }}>
               Email Address
@@ -207,7 +207,7 @@ function App() {
           </div>
           
           <button
-            type="submit"
+            onClick={handleLogin}
             disabled={loading || !email || !password}
             style={{
               width: '100%',
@@ -223,10 +223,10 @@ function App() {
           >
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
-        </form>
+        </div>
         
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#6b7280' }}>
-          Test with your registered account or create one via API
+          Test the authentication system!
         </p>
       </div>
     </div>
