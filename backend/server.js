@@ -647,6 +647,26 @@ app.get('/api/test', async (req, res) => {
   }
 });
 
+      error: error.message
+    });
+  }
+});
+
+// Debug route to see what's happening - ADD THIS HERE
+app.get('/api/*', (req, res) => {
+  res.json({ 
+    message: 'API endpoint hit', 
+    path: req.path,
+    method: req.method,
+    available_endpoints: [
+      '/api/auth/register',
+      '/api/auth/login', 
+      '/api/auth/me',
+      '/api/test'
+    ]
+  });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
