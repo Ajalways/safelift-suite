@@ -14,10 +14,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'safelift-super-secret-jwt-key-2025
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
   dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
+    ssl: false
   },
   logging: false
 });
