@@ -419,7 +419,7 @@ function App() {
                     <div>
                       <div style={{ fontSize: '2rem', fontWeight: '700', color: '#1e293b' }}>{stat.value}</div>
                       <div style={{ color: '#6b7280' }}>{stat.label}</div>
-                    </div>
+                    </React.Fragment>
                   </div>
                 ))}
               </div>
@@ -744,7 +744,7 @@ function App() {
               }}>{loading ? 'Signing In...' : 'Sign In'}</button>
             </div>
           ) : (
-            <div>
+            <React.Fragment>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                 {[
                   { label: 'First Name', value: firstName, setter: setFirstName, placeholder: 'John' },
