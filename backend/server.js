@@ -1,6 +1,3 @@
-// =============================================
-// Updated server.js - Complete Authentication System
-// =============================================
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -321,7 +318,283 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 
 // =============================================
-// AUTHENTICATION ROUTES
+// BASIC ROUTES (WORKING)
+// =============================================
+
+// Health check endpoint - THIS WORKS
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    service: 'SafeLift Suite API',
+    database: 'Connected',
+    features: 'Authentication System'
+  });
+});
+
+// Debug endpoint - TEST THIS
+app.get('/debug', (req, res) => {
+  res.json({
+    message: 'Debug endpoint working',
+    server_running: true,
+    routes_available: [
+      '/health - Health check (working)',
+      '/debug - This debug endpoint',
+      '/auth/register - Registration',
+      '/auth/login - Login',
+      '/auth/me - Get current user',
+      '/test - API test with stats'
+    ],
+    note: 'If you see this, the server is working but API routing might have issues'
+  });
+});
+
+// =============================================
+// AUTHENTICATION ROUTES (ROOT LEVEL - TEST)
+// =============================================
+
+// Register new company and admin user - ROOT LEVEL
+app.post('/auth/register', validateRegistration, async (req, res) => {
+  try {
+    const {
+      companyName, companyPhone, companyAddress, companyCity, companyState, companyZip,
+      firstName, lastName, email, phone, password, plan = 'starter'
+    } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'User with this email already exists'
+      });
+    }
+
+    // Set plan limits
+    const planLimits = {
+      starter: { cranes: 5, operators: 10, users: 3 },
+      professional: { cranes: 15, operators: 25, users: 10 },
+      enterprise: { cranes: 999, operators: 999, users: 50 }
+    };
+
+    // Create company
+    const company = await Company.create({
+      name: companyName,
+      phone: companyPhone,
+      address: companyAddress,
+      city: companyCity,
+      state: companyState,
+      zipCode: companyZip,
+      plan,
+      planLimits: planLimits[plan]
+    });
+
+    // Create admin user
+    const user = await User.create({
+      companyId: company.id,
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+      role: 'admin'
+    });
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user.id, 
+        companyId: company.id,
+        role: user.role
+      },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({
+      success: true,
+      token,
+      user: user.toJSON(),
+      company: {
+        id: company.id,
+        name: company.name,
+        plan: company.plan,
+        subscriptionStatus: company.subscriptionStatus,
+        trialEndsAt: company.trialEndsAt
+      }
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
+    
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation Error',
+        details: error.errors.map(e => e.message)
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: 'Registration failed'
+    });
+  }
+});
+
+// Login user - ROOT LEVEL
+app.post('/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email and password are required'
+      });
+    }
+
+    // Find user with company
+    const user = await User.findOne({
+      where: { email, status: 'active' },
+      include: [{
+        model: Company,
+        as: 'company'
+      }]
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials'
+      });
+    }
+
+    // Validate password
+    const isValidPassword = await user.validatePassword(password);
+    if (!isValidPassword) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials'
+      });
+    }
+
+    // Update last login
+    await user.update({ lastLoginAt: new Date() });
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user.id, 
+        companyId: user.companyId,
+        role: user.role
+      },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: user.toJSON(),
+      company: {
+        id: user.company.id,
+        name: user.company.name,
+        plan: user.company.plan,
+        subscriptionStatus: user.company.subscriptionStatus,
+        trialEndsAt: user.company.trialEndsAt
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Login failed'
+    });
+  }
+});
+
+// Get current user - ROOT LEVEL
+app.get('/auth/me', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.userId, {
+      include: [{
+        model: Company,
+        as: 'company'
+      }]
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      user: user.toJSON(),
+      company: {
+        id: user.company.id,
+        name: user.company.name,
+        plan: user.company.plan,
+        subscriptionStatus: user.company.subscriptionStatus,
+        trialEndsAt: user.company.trialEndsAt
+      }
+    });
+
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get user'
+    });
+  }
+});
+
+// Database test endpoint - ROOT LEVEL
+app.get('/test', async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    
+    // Count companies and users
+    const companyCount = await Company.count();
+    const userCount = await User.count();
+    
+    res.json({ 
+      message: 'SafeLift Suite API is running!',
+      database: 'Connected',
+      timestamp: new Date().toISOString(),
+      stats: {
+        companies: companyCount,
+        users: userCount
+      },
+      features: ['Authentication', 'Multi-tenant', 'Role-based Access'],
+      endpoints: {
+        auth: {
+          register: 'POST /auth/register',
+          login: 'POST /auth/login',
+          me: 'GET /auth/me'
+        },
+        api: {
+          test: 'GET /test',
+          health: 'GET /health',
+          debug: 'GET /debug'
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'SafeLift Suite API is running',
+      database: 'Connection failed',
+      error: error.message
+    });
+  }
+});
+
+// =============================================
+// ORIGINAL API ROUTES (WITH /api PREFIX)
 // =============================================
 
 // Register new company and admin user
@@ -532,6 +805,34 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
   });
 });
 
+// Database test endpoint
+app.get('/api/test', async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    
+    // Count companies and users
+    const companyCount = await Company.count();
+    const userCount = await User.count();
+    
+    res.json({ 
+      message: 'SafeLift Suite API is running!',
+      database: 'Connected',
+      timestamp: new Date().toISOString(),
+      stats: {
+        companies: companyCount,
+        users: userCount
+      },
+      features: ['Authentication', 'Multi-tenant', 'Role-based Access']
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'SafeLift Suite API is running',
+      database: 'Connection failed',
+      error: error.message
+    });
+  }
+});
+
 // =============================================
 // PROTECTED ROUTES (Examples)
 // =============================================
@@ -604,69 +905,6 @@ app.post('/api/users', authenticateToken, requireRole(['admin']), async (req, re
   }
 });
 
-// =============================================
-// HEALTH CHECK ROUTES
-// =============================================
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    service: 'SafeLift Suite API',
-    database: 'Connected',
-    features: 'Authentication System'
-  });
-});
-
-// Database test endpoint
-app.get('/api/test', async (req, res) => {
-  try {
-    await sequelize.authenticate();
-    
-    // Count companies and users
-    const companyCount = await Company.count();
-    const userCount = await User.count();
-    
-    res.json({ 
-      message: 'SafeLift Suite API is running!',
-      database: 'Connected',
-      timestamp: new Date().toISOString(),
-      stats: {
-        companies: companyCount,
-        users: userCount
-      },
-      features: ['Authentication', 'Multi-tenant', 'Role-based Access']
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      message: 'SafeLift Suite API is running',
-      database: 'Connection failed',
-      error: error.message
-    });
-  }
-});
-
-      error: error.message
-    });
-  }
-});
-
-// Debug route to see what's happening - ADD THIS HERE
-app.get('/api/*', (req, res) => {
-  res.json({ 
-    message: 'API endpoint hit', 
-    path: req.path,
-    method: req.method,
-    available_endpoints: [
-      '/api/auth/register',
-      '/api/auth/login', 
-      '/api/auth/me',
-      '/api/test'
-    ]
-  });
-});
-
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
@@ -696,7 +934,17 @@ app.use((err, req, res, next) => {
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Endpoint not found'
+    error: 'Endpoint not found',
+    path: req.originalUrl,
+    method: req.method,
+    available_endpoints: [
+      'GET /health',
+      'GET /debug', 
+      'GET /test',
+      'POST /auth/register',
+      'POST /auth/login',
+      'GET /auth/me'
+    ]
   });
 });
 
