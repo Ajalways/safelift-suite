@@ -419,7 +419,7 @@ function App() {
                     <div>
                       <div style={{ fontSize: '2rem', fontWeight: '700', color: '#1e293b' }}>{stat.value}</div>
                       <div style={{ color: '#6b7280' }}>{stat.label}</div>
-                    </React.Fragment>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -730,100 +730,7 @@ function App() {
                       ].map((field, idx) => (
                         <div key={idx} style={{ marginBottom: '1.5rem' }}>
                           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>{field.label}</label>
-                          <input {...field} onChange={(e) => field.setter(e.target.value)} required disabled={loading} style={{
-                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem',
-                    fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s'
-                  }} />
-                </div>
-              ))}
-              
-              <button onClick={handleLogin} disabled={loading || !email || !password} style={{
-                width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
-                fontSize: '1rem', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer', transition: 'transform 0.1s'
-              }}>{loading ? 'Signing In...' : 'Sign In'}</button>
-            </div>
-          ) : (
-            <React.Fragment>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                {[
-                  { label: 'First Name', value: firstName, setter: setFirstName, placeholder: 'John' },
-                  { label: 'Last Name', value: lastName, setter: setLastName, placeholder: 'Smith' }
-                ].map((field, idx) => (
-                  <div key={idx}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                    <input {...field} onChange={(e) => field.setter(e.target.value)} required disabled={loading} style={{
-                      width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                    }} />
-                  </div>
-                ))}
-              </div>
-
-              {[
-                { label: 'Company Name', value: companyName, setter: setCompanyName, placeholder: 'ABC Crane Services' },
-                { label: 'Email Address', value: regEmail, setter: setRegEmail, type: 'email', placeholder: 'john@company.com' },
-                { label: 'Password', value: regPassword, setter: setRegPassword, type: 'password', placeholder: 'Choose a secure password' }
-              ].map((field, idx) => (
-                <div key={idx} style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                  <input {...field} onChange={(e) => field.setter(e.target.value)} required disabled={loading} style={{
-                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                  }} />
-                </div>
-              ))}
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Phone</label>
-                  <input type="tel" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)}
-                    placeholder="(555) 123-4567" disabled={loading} style={{
-                      width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                    }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Plan</label>
-                  <select value={plan} onChange={(e) => setPlan(e.target.value)} disabled={loading} style={{
-                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                  }}>
-                    <option value="starter">Starter ($49/mo)</option>
-                    <option value="professional">Professional ($99/mo)</option>
-                    <option value="enterprise">Enterprise ($199/mo)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Address</label>
-                <input type="text" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)}
-                  placeholder="123 Main St, City, State" disabled={loading} style={{
-                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                  }} />
-              </div>
-              
-              <button onClick={handleRegistration} 
-                disabled={loading || !regEmail || !regPassword || !companyName || !firstName || !lastName} style={{
-                width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
-                color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
-                fontSize: '1rem', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer'
-              }}>{loading ? 'Creating Account...' : 'Create Account'}</button>
-            </div>
-          )}
-          
-          <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-            <button onClick={() => { setIsLogin(!isLogin); setError(''); }} style={{
-              background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer',
-              textDecoration: 'underline', fontSize: '0.9rem'
-            }}>
-              {isLogin ? "Don't have an account? Create one" : "Already have an account? Sign in"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default App;setter(Number(e.target.value))} style={{
+                          <input {...field} onChange={(e) => field.setter(Number(e.target.value))} style={{
                             width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
                           }} />
                         </div>
@@ -1078,4 +985,97 @@ export default App;setter(Number(e.target.value))} style={{
               ].map((field, idx) => (
                 <div key={idx} style={{ marginBottom: idx === 0 ? '1rem' : '1.5rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                  <input {...field} onChange={(e) => field.
+                  <input {...field} onChange={(e) => field.setter(e.target.value)} required disabled={loading} style={{
+                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem',
+                    fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s'
+                  }} />
+                </div>
+              ))}
+              
+              <button onClick={handleLogin} disabled={loading || !email || !password} style={{
+                width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
+                fontSize: '1rem', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer', transition: 'transform 0.1s'
+              }}>{loading ? 'Signing In...' : 'Sign In'}</button>
+            </div>
+          ) : (
+            <div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                {[
+                  { label: 'First Name', value: firstName, setter: setFirstName, placeholder: 'John' },
+                  { label: 'Last Name', value: lastName, setter: setLastName, placeholder: 'Smith' }
+                ].map((field, idx) => (
+                  <div key={idx}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
+                    <input {...field} onChange={(e) => field.setter(e.target.value)} required disabled={loading} style={{
+                      width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                    }} />
+                  </div>
+                ))}
+              </div>
+
+              {[
+                { label: 'Company Name', value: companyName, setter: setCompanyName, placeholder: 'ABC Crane Services' },
+                { label: 'Email Address', value: regEmail, setter: setRegEmail, type: 'email', placeholder: 'john@company.com' },
+                { label: 'Password', value: regPassword, setter: setRegPassword, type: 'password', placeholder: 'Choose a secure password' }
+              ].map((field, idx) => (
+                <div key={idx} style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
+                  <input {...field} onChange={(e) => field.setter(e.target.value)} required disabled={loading} style={{
+                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                  }} />
+                </div>
+              ))}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Phone</label>
+                  <input type="tel" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)}
+                    placeholder="(555) 123-4567" disabled={loading} style={{
+                      width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                    }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Plan</label>
+                  <select value={plan} onChange={(e) => setPlan(e.target.value)} disabled={loading} style={{
+                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                  }}>
+                    <option value="starter">Starter ($49/mo)</option>
+                    <option value="professional">Professional ($99/mo)</option>
+                    <option value="enterprise">Enterprise ($199/mo)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Address</label>
+                <input type="text" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)}
+                  placeholder="123 Main St, City, State" disabled={loading} style={{
+                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                  }} />
+              </div>
+              
+              <button onClick={handleRegistration} 
+                disabled={loading || !regEmail || !regPassword || !companyName || !firstName || !lastName} style={{
+                width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
+                color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
+                fontSize: '1rem', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer'
+              }}>{loading ? 'Creating Account...' : 'Create Account'}</button>
+            </div>
+          )}
+          
+          <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+            <button onClick={() => { setIsLogin(!isLogin); setError(''); }} style={{
+              background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer',
+              textDecoration: 'underline', fontSize: '0.9rem'
+            }}>
+              {isLogin ? "Don't have an account? Create one" : "Already have an account? Sign in"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
