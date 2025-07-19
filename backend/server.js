@@ -10,13 +10,22 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'safelift-super-secret-jwt-key-2025';
 
-// Database connection
+//// Database connection
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
   dialectOptions: {
-    ssl: false
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
   },
-  logging: false
+  logging: false,
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  }
 });
 
 // Database Models
