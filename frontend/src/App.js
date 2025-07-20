@@ -358,7 +358,6 @@ function App() {
   if (user) {
     return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: 'system-ui' }}>
-        {/* Header */}
         <header style={{
           background: 'white', padding: '1rem 2rem', borderBottom: '1px solid #e5e7eb',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -384,7 +383,6 @@ function App() {
           </div>
         </header>
 
-        {/* Navigation */}
         <nav style={{ background: 'white', padding: '0 2rem', borderBottom: '1px solid #e5e7eb' }}>
           <div style={{ display: 'flex', gap: '2rem' }}>
             {['dashboard', 'cranes', 'operators', 'jobs', 'inspections', 'load-calculator'].map(view => (
@@ -400,7 +398,6 @@ function App() {
           </div>
         </nav>
 
-        {/* Main Content */}
         <main style={{ padding: '2rem' }}>
           {currentView === 'dashboard' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
@@ -428,7 +425,7 @@ function App() {
                 <h2 style={{ margin: '0 0 1rem 0', color: '#1e293b' }}>Recent Activity</h2>
                 <div style={{ display: 'grid', gap: '0.5rem' }}>
                   {[
-                    'Job "Downtown Office Building" started - 2 hours ago',
+                    'Job Downtown Office Building started - 2 hours ago',
                     'Crane inspection completed for Grove RT890E - 1 day ago',
                     'New operator John Smith added - 3 days ago'
                   ].map((activity, idx) => (
@@ -822,7 +819,6 @@ function App() {
           )}
         </main>
 
-        {/* Modal */}
         {showModal && (
           <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0, 0, 0, 0.5)',
@@ -939,7 +935,6 @@ function App() {
     );
   }
 
-  // Login/Registration Interface
   return (
     <div style={{ minHeight: '100vh', display: 'flex', fontFamily: 'system-ui', background: '#f8fafc' }}>
       <div style={{
@@ -1123,7 +1118,7 @@ function App() {
               background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer',
               textDecoration: 'underline', fontSize: '0.9rem'
             }}>
-              {isLogin ? "Don't have an account? Create one" : "Already have an account? Sign in"}
+              {isLogin ? 'Need an account? Create one' : 'Already have an account? Sign in'}
             </button>
           </div>
         </div>
