@@ -43,21 +43,164 @@ const SAMPLE_JOBS = [
 const SAMPLE_INSPECTIONS = [
   {
     id: 1, craneId: 1, craneName: 'Manitex TC50155', date: '2025-01-15', inspector: 'John Smith',
-    status: 'Passed', score: 95, items: [
-      { category: 'General', item: 'Visual inspection', status: 'Pass', notes: 'Good condition' },
-      { category: 'Engine', item: 'Engine operation', status: 'Pass', notes: 'Running smoothly' },
-      { category: 'Boom', item: 'Boom extension', status: 'Pass', notes: 'No issues' },
-      { category: 'Safety', item: 'Load moment indicator', status: 'Fail', notes: 'Needs calibration' }
+    status: 'Passed', score: 95, overallStatus: 'completed',
+    items: [
+      { id: 1, category: 'General', item: 'Visual inspection', status: 'Pass', notes: 'Good condition', photos: [] },
+      { id: 2, category: 'Engine', item: 'Engine operation', status: 'Pass', notes: 'Running smoothly', photos: [] },
+      { id: 3, category: 'Boom', item: 'Boom extension', status: 'Pass', notes: 'No issues', photos: [] },
+      { id: 4, category: 'Safety', item: 'Load moment indicator', status: 'Fail', notes: 'Needs calibration', photos: [] }
     ]
   }
 ];
 
+// Complete inspection categories with all OSHA items
 const INSPECTION_CATEGORIES = [
-  { id: 'general', name: 'General Condition', items: ['Visual inspection of crane', 'Check for damage/wear', 'Fluid leaks', 'Rust/corrosion'] },
-  { id: 'engine', name: 'Engine/Hydraulics', items: ['Engine operation', 'Hydraulic fluid level', 'Hose condition', 'Filter condition'] },
-  { id: 'boom', name: 'Boom/Jib', items: ['Boom extension/retraction', 'Boom angle indicator', 'Jib operation', 'Load block'] },
-  { id: 'outriggers', name: 'Outriggers', items: ['Outrigger extension', 'Float condition', 'Retraction operation', 'Position indicators'] },
-  { id: 'safety', name: 'Safety Systems', items: ['Load moment indicator', 'Warning systems', 'Emergency stops', 'Load charts present'] }
+  {
+    id: 'general',
+    name: 'General Condition',
+    items: [
+      { id: 'gen_1', name: 'Visual inspection of crane structure', required: true },
+      { id: 'gen_2', name: 'Check for cracks, bent parts, or damage', required: true },
+      { id: 'gen_3', name: 'Inspect for fluid leaks', required: true },
+      { id: 'gen_4', name: 'Check for rust or corrosion', required: true },
+      { id: 'gen_5', name: 'Verify all guards and covers in place', required: true },
+      { id: 'gen_6', name: 'Check cleanliness and housekeeping', required: false }
+    ]
+  },
+  {
+    id: 'engine',
+    name: 'Engine & Power Train',
+    items: [
+      { id: 'eng_1', name: 'Engine oil level and condition', required: true },
+      { id: 'eng_2', name: 'Coolant level and condition', required: true },
+      { id: 'eng_3', name: 'Air filter condition', required: true },
+      { id: 'eng_4', name: 'Belt condition and tension', required: true },
+      { id: 'eng_5', name: 'Battery condition and connections', required: true },
+      { id: 'eng_6', name: 'Exhaust system integrity', required: true },
+      { id: 'eng_7', name: 'Engine operation and idle quality', required: true }
+    ]
+  },
+  {
+    id: 'hydraulics',
+    name: 'Hydraulic System',
+    items: [
+      { id: 'hyd_1', name: 'Hydraulic fluid level and condition', required: true },
+      { id: 'hyd_2', name: 'Hydraulic hose condition', required: true },
+      { id: 'hyd_3', name: 'Hydraulic pump operation', required: true },
+      { id: 'hyd_4', name: 'Cylinder operation and leaks', required: true },
+      { id: 'hyd_5', name: 'Filter condition', required: true },
+      { id: 'hyd_6', name: 'Pressure relief valve operation', required: true }
+    ]
+  },
+  {
+    id: 'boom',
+    name: 'Boom & Jib',
+    items: [
+      { id: 'boom_1', name: 'Boom extension and retraction', required: true },
+      { id: 'boom_2', name: 'Boom angle indicator accuracy', required: true },
+      { id: 'boom_3', name: 'Jib operation (if equipped)', required: false },
+      { id: 'boom_4', name: 'Load block condition', required: true },
+      { id: 'boom_5', name: 'Hook condition and safety latch', required: true },
+      { id: 'boom_6', name: 'Wire rope condition', required: true },
+      { id: 'boom_7', name: 'Boom head and connections', required: true }
+    ]
+  },
+  {
+    id: 'outriggers',
+    name: 'Outriggers & Stabilizers',
+    items: [
+      { id: 'out_1', name: 'Outrigger extension operation', required: true },
+      { id: 'out_2', name: 'Float condition and integrity', required: true },
+      { id: 'out_3', name: 'Retraction operation', required: true },
+      { id: 'out_4', name: 'Position indicators accuracy', required: true },
+      { id: 'out_5', name: 'Outrigger boxes and pins', required: true },
+      { id: 'out_6', name: 'Warning alarms operation', required: true }
+    ]
+  },
+  {
+    id: 'safety',
+    name: 'Safety Systems',
+    items: [
+      { id: 'safe_1', name: 'Load moment indicator (LMI)', required: true },
+      { id: 'safe_2', name: 'Warning systems and alarms', required: true },
+      { id: 'safe_3', name: 'Emergency stop systems', required: true },
+      { id: 'safe_4', name: 'Load charts present and legible', required: true },
+      { id: 'safe_5', name: 'Operator manual present', required: true },
+      { id: 'safe_6', name: 'Warning decals and placards', required: true },
+      { id: 'safe_7', name: 'Cab safety equipment', required: true }
+    ]
+  },
+  {
+    id: 'electrical',
+    name: 'Electrical System',
+    items: [
+      { id: 'elec_1', name: 'Main electrical panel condition', required: true },
+      { id: 'elec_2', name: 'Wire harness condition', required: true },
+      { id: 'elec_3', name: 'Control switch operation', required: true },
+      { id: 'elec_4', name: 'Instrument panel function', required: true },
+      { id: 'elec_5', name: 'Lighting systems', required: true },
+      { id: 'elec_6', name: 'Warning light operation', required: true }
+    ]
+  },
+  {
+    id: 'controls',
+    name: 'Controls & Operation',
+    items: [
+      { id: 'ctrl_1', name: 'Joystick operation and response', required: true },
+      { id: 'ctrl_2', name: 'Function selector switches', required: true },
+      { id: 'ctrl_3', name: 'Travel controls (if equipped)', required: false },
+      { id: 'ctrl_4', name: 'Swing brake operation', required: true },
+      { id: 'ctrl_5', name: 'Load block travel limits', required: true },
+      { id: 'ctrl_6', name: 'Boom angle limits', required: true }
+    ]
+  },
+  {
+    id: 'winch',
+    name: 'Winch & Hoist',
+    items: [
+      { id: 'winch_1', name: 'Main winch operation', required: true },
+      { id: 'winch_2', name: 'Auxiliary winch (if equipped)', required: false },
+      { id: 'winch_3', name: 'Wire rope spooling', required: true },
+      { id: 'winch_4', name: 'Load block two-blocking', required: true },
+      { id: 'winch_5', name: 'Hoist brake operation', required: true },
+      { id: 'winch_6', name: 'Anti-two-block system', required: true }
+    ]
+  },
+  {
+    id: 'carrier',
+    name: 'Carrier & Chassis',
+    items: [
+      { id: 'carr_1', name: 'Tire condition and pressure', required: true },
+      { id: 'carr_2', name: 'Suspension system', required: true },
+      { id: 'carr_3', name: 'Steering operation', required: true },
+      { id: 'carr_4', name: 'Brake system operation', required: true },
+      { id: 'carr_5', name: 'Transmission operation', required: true },
+      { id: 'carr_6', name: 'Differential and axles', required: false }
+    ]
+  },
+  {
+    id: 'documentation',
+    name: 'Documentation',
+    items: [
+      { id: 'doc_1', name: 'Current inspection certificate', required: true },
+      { id: 'doc_2', name: 'Operator certification records', required: true },
+      { id: 'doc_3', name: 'Maintenance records up to date', required: true },
+      { id: 'doc_4', name: 'Insurance documentation', required: true },
+      { id: 'doc_5', name: 'Operating permits (if required)', required: false },
+      { id: 'doc_6', name: 'Previous inspection reports', required: false }
+    ]
+  },
+  {
+    id: 'final',
+    name: 'Final Checks',
+    items: [
+      { id: 'final_1', name: 'Overall crane functionality', required: true },
+      { id: 'final_2', name: 'All systems integration test', required: true },
+      { id: 'final_3', name: 'Load test (if required)', required: false },
+      { id: 'final_4', name: 'Operator walkthrough', required: true },
+      { id: 'final_5', name: 'Safety briefing completed', required: true }
+    ]
+  }
 ];
 
 // Manitex Load Calculator Data
@@ -111,6 +254,10 @@ function App() {
   const [modalType, setModalType] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
 
+  // Inspection states
+  const [activeInspection, setActiveInspection] = useState(null);
+  const [inspectionProgress, setInspectionProgress] = useState({});
+
   // Auth form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -153,7 +300,6 @@ function App() {
     if (currentView === 'load-calculator') {
       calculateLoad();
     }
-    // eslint-disable-next-line
   }, [workingRadius, boomLength, loadWeight, outriggerConfig, selectedModel, currentView]);
 
   const checkAuth = async (token) => {
@@ -291,9 +437,104 @@ function App() {
       'Available': '#10b981', 'In Use': '#f59e0b', 'Maintenance': '#ef4444', 'Out of Service': '#6b7280',
       'Active': '#10b981', 'Expiring Soon': '#f59e0b', 'Expired': '#ef4444',
       'Scheduled': '#3b82f6', 'In Progress': '#f59e0b', 'Completed': '#10b981', 'Passed': '#10b981', 'Failed': '#ef4444',
-      'Pass': '#10b981', 'Fail': '#ef4444'
+      'Pass': '#10b981', 'Fail': '#ef4444', 'N/A': '#6b7280'
     };
     return colors[status] || '#6b7280';
+  };
+
+  // Inspection Functions
+  const startNewInspection = (crane) => {
+    const newInspection = {
+      id: Date.now(),
+      craneId: crane.id,
+      craneName: `${crane.make} ${crane.model}`,
+      date: new Date().toISOString().split('T')[0],
+      inspector: `${user?.firstName} ${user?.lastName}` || 'Inspector',
+      status: 'In Progress',
+      overallStatus: 'in-progress',
+      signature: null,
+      items: INSPECTION_CATEGORIES.flatMap(category =>
+        category.items.map(item => ({
+          id: item.id,
+          category: category.name,
+          item: item.name,
+          required: item.required,
+          status: null,
+          notes: '',
+          photos: []
+        }))
+      )
+    };
+
+    setActiveInspection(newInspection);
+    setCurrentView('inspection-detail');
+  };
+
+  const updateInspectionItem = (itemId, updates) => {
+    setActiveInspection(prev => ({
+      ...prev,
+      items: prev.items.map(item =>
+        item.id === itemId ? { ...item, ...updates } : item
+      )
+    }));
+  };
+
+  const addPhotoToItem = (itemId, photoData) => {
+    setActiveInspection(prev => ({
+      ...prev,
+      items: prev.items.map(item =>
+        item.id === itemId
+          ? { ...item, photos: [...item.photos, { id: Date.now(), data: photoData, timestamp: new Date() }] }
+          : item
+      )
+    }));
+  };
+
+  const removePhotoFromItem = (itemId, photoId) => {
+    setActiveInspection(prev => ({
+      ...prev,
+      items: prev.items.map(item =>
+        item.id === itemId
+          ? { ...item, photos: item.photos.filter(photo => photo.id !== photoId) }
+          : item
+      )
+    }));
+  };
+
+  const calculateInspectionProgress = () => {
+    if (!activeInspection) return 0;
+    const completedItems = activeInspection.items.filter(item => item.status !== null).length;
+    return Math.round((completedItems / activeInspection.items.length) * 100);
+  };
+
+  const completeInspection = () => {
+    if (!activeInspection) return;
+
+    const completedItems = activeInspection.items.filter(item => item.status !== null);
+    const failedItems = activeInspection.items.filter(item => item.status === 'Fail');
+    const passedItems = activeInspection.items.filter(item => item.status === 'Pass');
+
+    const score = Math.round((passedItems.length / completedItems.length) * 100);
+    const status = failedItems.length > 0 ? 'Failed' : 'Passed';
+
+    const finalInspection = {
+      ...activeInspection,
+      status,
+      score,
+      overallStatus: 'completed',
+      completedAt: new Date().toISOString()
+    };
+
+    setInspections([...inspections, finalInspection]);
+    setActiveInspection(null);
+    setCurrentView('inspections');
+
+    // Update crane's last inspection date
+    setCranes(prev => prev.map(crane =>
+      crane.id === finalInspection.craneId
+        ? { ...crane, lastInspection: finalInspection.date }
+        : crane
+    ));
   };
 
   // Load Calculator Functions
@@ -358,11 +599,23 @@ function App() {
     return Object.keys(firstEntry);
   };
 
+  const handlePhotoUpload = (itemId, event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        addPhotoToItem(itemId, e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // --- UI RENDERING BELOW ---
 
   if (user) {
     return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: 'system-ui' }}>
+        {/* Header */}
         <header style={{
           background: 'white', padding: '1rem 2rem', borderBottom: '1px solid #e5e7eb',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -388,6 +641,7 @@ function App() {
           </div>
         </header>
 
+        {/* Navigation */}
         <nav style={{ background: 'white', padding: '0 2rem', borderBottom: '1px solid #e5e7eb' }}>
           <div style={{ display: 'flex', gap: '2rem' }}>
             {['dashboard', 'cranes', 'operators', 'jobs', 'inspections', 'load-calculator'].map(view => (
@@ -403,8 +657,9 @@ function App() {
           </div>
         </nav>
 
+        {/* Main Content */}
         <main style={{ padding: '2rem' }}>
-          {/* -- DASHBOARD -- */}
+          {/* Dashboard */}
           {currentView === 'dashboard' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
@@ -431,7 +686,7 @@ function App() {
                 <h2 style={{ margin: '0 0 1rem 0', color: '#1e293b' }}>Recent Activity</h2>
                 <div style={{ display: 'grid', gap: '0.5rem' }}>
                   {[
-                    'Job Downtown Office Building started - 2 hours ago',
+                    'Job "Downtown Office Building" started - 2 hours ago',
                     'Crane inspection completed for Grove RT890E - 1 day ago',
                     'New operator John Smith added - 3 days ago'
                   ].map((activity, idx) => (
@@ -447,7 +702,7 @@ function App() {
             </div>
           )}
 
-          {/* -- CRANES -- */}
+          {/* Cranes */}
           {currentView === 'cranes' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -463,7 +718,7 @@ function App() {
                   <div key={crane.id} style={{
                     background: 'white', padding: '1.5rem', borderRadius: '1rem',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', display: 'grid',
-                    gridTemplateColumns: '1fr auto auto', alignItems: 'center', gap: '1rem'
+                    gridTemplateColumns: '1fr auto auto auto', alignItems: 'center', gap: '1rem'
                   }}>
                     <div>
                       <h3 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>{crane.make} {crane.model}</h3>
@@ -474,6 +729,11 @@ function App() {
                         <div>Last Inspection: {crane.lastInspection}</div>
                       </div>
                     </div>
+                    <button onClick={() => startNewInspection(crane)} style={{
+                      background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: 'white', border: 'none',
+                      padding: '0.5rem 1rem', borderRadius: '0.375rem', cursor: 'pointer', fontWeight: '500',
+                      fontSize: '0.875rem'
+                    }}>Inspect</button>
                     <div style={{
                       padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '500',
                       background: `${getStatusColor(crane.status)}20`, color: getStatusColor(crane.status)
@@ -494,7 +754,7 @@ function App() {
             </div>
           )}
 
-          {/* -- OPERATORS -- */}
+          {/* Operators */}
           {currentView === 'operators' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -553,7 +813,7 @@ function App() {
             </div>
           )}
 
-          {/* -- JOBS -- */}
+          {/* Jobs */}
           {currentView === 'jobs' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -602,15 +862,25 @@ function App() {
             </div>
           )}
 
-          {/* -- INSPECTIONS -- */}
+          {/* Inspections */}
           {currentView === 'inspections' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h1 style={{ margin: 0, color: '#1e293b' }}>OSHA Inspections</h1>
-                <button style={{
-                  background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none',
-                  padding: '0.75rem 1.5rem', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: '600'
-                }}>Start New Inspection</button>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <select onChange={(e) => {
+                    const crane = cranes.find(c => c.id === parseInt(e.target.value));
+                    if (crane) startNewInspection(crane);
+                  }} style={{
+                    padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem',
+                    background: 'white', fontSize: '1rem'
+                  }}>
+                    <option value="">Select crane to inspect...</option>
+                    {cranes.map(crane => (
+                      <option key={crane.id} value={crane.id}>{crane.make} {crane.model}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div style={{ display: 'grid', gap: '1rem' }}>
@@ -649,9 +919,14 @@ function App() {
                   {INSPECTION_CATEGORIES.map(category => (
                     <div key={category.id} style={{ border: '1px solid #e5e7eb', borderRadius: '0.5rem', padding: '1rem' }}>
                       <h3 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>{category.name}</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.25rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0.25rem' }}>
                         {category.items.map((item, idx) => (
-                          <div key={idx} style={{ fontSize: '0.875rem', color: '#6b7280' }}>• {item}</div>
+                          <div key={idx} style={{ fontSize: '0.875rem', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <span style={{ color: item.required ? '#ef4444' : '#6b7280' }}>
+                              {item.required ? '●' : '○'}
+                            </span>
+                            {item.name}
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -661,7 +936,168 @@ function App() {
             </div>
           )}
 
-          {/* -- LOAD CALCULATOR -- */}
+          {/* Inspection Detail View */}
+          {currentView === 'inspection-detail' && activeInspection && (
+            <div style={{ display: 'grid', gap: '2rem' }}>
+              {/* Header */}
+              <div style={{
+                background: 'white', padding: '2rem', borderRadius: '1rem',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div>
+                    <h1 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+                      Inspecting: {activeInspection.craneName}
+                    </h1>
+                    <div style={{ color: '#6b7280' }}>
+                      Inspector: {activeInspection.inspector} | Date: {activeInspection.date}
+                    </div>
+                  </div>
+                  <button onClick={() => setCurrentView('inspections')} style={{
+                    background: '#6b7280', color: 'white', border: 'none',
+                    padding: '0.5rem 1rem', borderRadius: '0.375rem', cursor: 'pointer'
+                  }}>Back to Inspections</button>
+                </div>
+
+                {/* Progress Bar */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span style={{ fontWeight: '500' }}>Progress</span>
+                    <span>{calculateInspectionProgress()}%</span>
+                  </div>
+                  <div style={{ background: '#e5e7eb', borderRadius: '0.5rem', height: '0.5rem' }}>
+                    <div style={{
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      width: `${calculateInspectionProgress()}%`,
+                      height: '100%', borderRadius: '0.5rem', transition: 'width 0.3s'
+                    }}></div>
+                  </div>
+                </div>
+
+                {/* Complete Button */}
+                {calculateInspectionProgress() === 100 && (
+                  <button onClick={completeInspection} style={{
+                    background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none',
+                    padding: '0.75rem 1.5rem', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: '600'
+                  }}>Complete Inspection</button>
+                )}
+              </div>
+
+              {/* Inspection Items by Category */}
+              {INSPECTION_CATEGORIES.map(category => {
+                const categoryItems = activeInspection.items.filter(item =>
+                  item.category === category.name
+                );
+
+                return (
+                  <div key={category.id} style={{
+                    background: 'white', padding: '2rem', borderRadius: '1rem',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}>
+                    <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>{category.name}</h2>
+                    <div style={{ display: 'grid', gap: '1.5rem' }}>
+                      {categoryItems.map(item => (
+                        <div key={item.id} style={{
+                          border: '1px solid #e5e7eb', borderRadius: '0.75rem', padding: '1.5rem',
+                          background: item.status ? '#f8fafc' : 'white'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <div style={{ flex: 1 }}>
+                              <h3 style={{ margin: '0 0 0.25rem 0', color: '#1e293b', fontSize: '1rem' }}>
+                                {item.item}
+                                {item.required && <span style={{ color: '#ef4444', marginLeft: '0.5rem' }}>*</span>}
+                              </h3>
+                              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                                {item.required ? 'Required' : 'Optional'}
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              {['Pass', 'Fail', 'N/A'].map(status => (
+                                <button key={status} onClick={() => updateInspectionItem(item.id, { status })}
+                                  style={{
+                                    background: item.status === status 
+                                      ? getStatusColor(status) 
+                                      : 'white',
+                                    color: item.status === status ? 'white' : getStatusColor(status),
+                                    border: `2px solid ${getStatusColor(status)}`,
+                                    padding: '0.5rem 1rem', borderRadius: '0.375rem',
+                                    cursor: 'pointer', fontWeight: '500', fontSize: '0.875rem'
+                                  }}
+                                >{status}</button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Notes */}
+                          <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>
+                              Notes
+                            </label>
+                            <textarea
+                              value={item.notes}
+                              onChange={(e) => updateInspectionItem(item.id, { notes: e.target.value })}
+                              placeholder="Add inspection notes..."
+                              style={{
+                                width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb',
+                                borderRadius: '0.5rem', fontSize: '0.875rem', resize: 'vertical', minHeight: '80px'
+                              }}
+                            />
+                          </div>
+
+                          {/* Photos */}
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                              <label style={{ fontWeight: '500', color: '#374151' }}>Photos</label>
+                              <label style={{
+                                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white',
+                                padding: '0.5rem 1rem', borderRadius: '0.375rem', cursor: 'pointer',
+                                fontSize: '0.875rem', fontWeight: '500'
+                              }}>
+                                + Add Photo
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handlePhotoUpload(item.id, e)}
+                                  style={{ display: 'none' }}
+                                />
+                              </label>
+                            </div>
+                            {item.photos.length > 0 && (
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.5rem' }}>
+                                {item.photos.map(photo => (
+                                  <div key={photo.id} style={{ position: 'relative' }}>
+                                    <img
+                                      src={photo.data}
+                                      alt="Inspection"
+                                      style={{
+                                        width: '100%', height: '80px', objectFit: 'cover',
+                                        borderRadius: '0.375rem', border: '1px solid #e5e7eb'
+                                      }}
+                                    />
+                                    <button
+                                      onClick={() => removePhotoFromItem(item.id, photo.id)}
+                                      style={{
+                                        position: 'absolute', top: '0.25rem', right: '0.25rem',
+                                        background: '#ef4444', color: 'white', border: 'none',
+                                        borderRadius: '50%', width: '20px', height: '20px',
+                                        fontSize: '0.75rem', cursor: 'pointer'
+                                      }}
+                                    >×</button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Load Calculator */}
           {currentView === 'load-calculator' && (
             <div>
               {!hasLoadCalculatorAccess() ? (
@@ -830,7 +1266,7 @@ function App() {
           )}
         </main>
 
-        {/* --- MODALS --- */}
+        {/* Modals */}
         {showModal && (
           <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0, 0, 0, 0.5)',
@@ -947,7 +1383,7 @@ function App() {
     );
   }
 
-  // LOGIN/REGISTER UI
+  // Login/Registration Interface
   return (
     <div style={{ minHeight: '100vh', display: 'flex', fontFamily: 'system-ui', background: '#f8fafc' }}>
       <div style={{
@@ -964,7 +1400,7 @@ function App() {
           <p style={{ fontSize: '1.2rem', opacity: 0.9, lineHeight: '1.6' }}>
             Complete crane management platform with fleet tracking, job scheduling, OSHA inspections, and Manitex load calculations.
           </p>
-          <div style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.8 }}>
+          <div style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.8' }}>
             ✅ Fleet Management • 📋 OSHA Inspections • 🏗️ Load Calculator
           </div>
         </div>
@@ -1131,7 +1567,7 @@ function App() {
               background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer',
               textDecoration: 'underline', fontSize: '0.9rem'
             }}>
-              {isLogin ? 'Need an account? Create one' : 'Already have an account? Sign in'}
+              {isLogin ? "Don't have an account? Create one" : "Already have an account? Sign in"}
             </button>
           </div>
         </div>
