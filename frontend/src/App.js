@@ -655,7 +655,7 @@ function App() {
           )}
 
           {currentView === 'load-calculator' && (
-            <>
+            <React.Fragment>
               {!hasLoadCalculatorAccess() ? (
                 <div style={{
                   background: 'white', padding: '2rem', borderRadius: '1rem',
@@ -730,9 +730,17 @@ function App() {
                       ].map((field, idx) => (
                         <div key={idx} style={{ marginBottom: '1.5rem' }}>
                           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>{field.label}</label>
-                          <input {...field} onChange={(e) => field.setter(Number(e.target.value))} style={{
-                            width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                          }} />
+                          <input 
+                            type={field.type}
+                            value={field.value}
+                            min={field.min}
+                            max={field.max}
+                            step={field.step}
+                            onChange={(e) => field.setter(Number(e.target.value))} 
+                            style={{
+                              width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                            }} 
+                          />
                         </div>
                       ))}
 
@@ -766,7 +774,7 @@ function App() {
                       <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>Load Calculation Results</h2>
 
                       {calculation && (
-                        <>
+                        <React.Fragment>
                           <div style={{
                             background: calculation.isWithinCapacity ? 'linear-gradient(135deg, #ecfdf5, #d1fae5)' : 'linear-gradient(135deg, #fef2f2, #fecaca)',
                             padding: '1rem', borderRadius: '0.75rem', border: `2px solid ${getSafetyColor()}`, marginBottom: '1.5rem'
@@ -804,13 +812,13 @@ function App() {
                               padding: '0.75rem 1rem', borderRadius: '0.5rem', fontWeight: '600', cursor: 'pointer'
                             }}>Print Report</button>
                           </div>
-                        </>
+                        </React.Fragment>
                       )}
                     </div>
                   </div>
                 </div>
               )}
-            </>
+            </React.Fragment>
           )}
         </main>
 
@@ -985,10 +993,18 @@ function App() {
               ].map((field, idx) => (
                 <div key={idx} style={{ marginBottom: idx === 0 ? '1rem' : '1.5rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                  <input {...field} onChange={(e) => field.setter(e.target.value)} required disabled={loading} style={{
-                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem',
-                    fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s'
-                  }} />
+                  <input 
+                    type={field.type}
+                    value={field.value}
+                    placeholder={field.placeholder}
+                    onChange={(e) => field.setter(e.target.value)} 
+                    required 
+                    disabled={loading} 
+                    style={{
+                      width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem',
+                      fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s'
+                    }} 
+                  />
                 </div>
               ))}
               
@@ -1007,9 +1023,17 @@ function App() {
                 ].map((field, idx) => (
                   <div key={idx}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                    <input {...field} onChange={(e) => field.setter(e.target.value)} required disabled={loading} style={{
-                      width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                    }} />
+                    <input 
+                      type="text"
+                      value={field.value}
+                      placeholder={field.placeholder}
+                      onChange={(e) => field.setter(e.target.value)} 
+                      required 
+                      disabled={loading} 
+                      style={{
+                        width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                      }} 
+                    />
                   </div>
                 ))}
               </div>
@@ -1021,25 +1045,44 @@ function App() {
               ].map((field, idx) => (
                 <div key={idx} style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                  <input {...field} onChange={(e) => field.setter(e.target.value)} required disabled={loading} style={{
-                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                  }} />
+                  <input 
+                    type={field.type || 'text'}
+                    value={field.value}
+                    placeholder={field.placeholder}
+                    onChange={(e) => field.setter(e.target.value)} 
+                    required 
+                    disabled={loading} 
+                    style={{
+                      width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                    }} 
+                  />
                 </div>
               ))}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Phone</label>
-                  <input type="tel" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)}
-                    placeholder="(555) 123-4567" disabled={loading} style={{
+                  <input 
+                    type="tel" 
+                    value={companyPhone} 
+                    onChange={(e) => setCompanyPhone(e.target.value)}
+                    placeholder="(555) 123-4567" 
+                    disabled={loading} 
+                    style={{
                       width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                    }} />
+                    }} 
+                  />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Plan</label>
-                  <select value={plan} onChange={(e) => setPlan(e.target.value)} disabled={loading} style={{
-                    width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                  }}>
+                  <select 
+                    value={plan} 
+                    onChange={(e) => setPlan(e.target.value)} 
+                    disabled={loading} 
+                    style={{
+                      width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                    }}
+                  >
                     <option value="starter">Starter ($49/mo)</option>
                     <option value="professional">Professional ($99/mo)</option>
                     <option value="enterprise">Enterprise ($199/mo)</option>
@@ -1049,18 +1092,29 @@ function App() {
 
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Address</label>
-                <input type="text" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)}
-                  placeholder="123 Main St, City, State" disabled={loading} style={{
+                <input 
+                  type="text" 
+                  value={companyAddress} 
+                  onChange={(e) => setCompanyAddress(e.target.value)}
+                  placeholder="123 Main St, City, State" 
+                  disabled={loading} 
+                  style={{
                     width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                  }} />
+                  }} 
+                />
               </div>
               
-              <button onClick={handleRegistration} 
-                disabled={loading || !regEmail || !regPassword || !companyName || !firstName || !lastName} style={{
-                width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
-                color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
-                fontSize: '1rem', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer'
-              }}>{loading ? 'Creating Account...' : 'Create Account'}</button>
+              <button 
+                onClick={handleRegistration} 
+                disabled={loading || !regEmail || !regPassword || !companyName || !firstName || !lastName} 
+                style={{
+                  width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
+                  fontSize: '1rem', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {loading ? 'Creating Account...' : 'Create Account'}
+              </button>
             </div>
           )}
           
