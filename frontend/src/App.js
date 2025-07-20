@@ -10,7 +10,7 @@ const SAMPLE_CRANES = [
 ];
 
 const SAMPLE_OPERATORS = [
-  { 
+  {
     id: 1, name: 'John Smith', email: 'john@company.com', phone: '555-0101', status: 'Available',
     emergencyContact: 'Jane Smith', emergencyPhone: '555-0201',
     certifications: [
@@ -18,7 +18,7 @@ const SAMPLE_OPERATORS = [
       { type: 'OSHA 30-Hour', number: 'OS-789012', expires: '2025-12-01', status: 'Active' }
     ]
   },
-  { 
+  {
     id: 2, name: 'Mike Johnson', email: 'mike@company.com', phone: '555-0102', status: 'On Job',
     emergencyContact: 'Sarah Johnson', emergencyPhone: '555-0202',
     certifications: [
@@ -28,14 +28,14 @@ const SAMPLE_OPERATORS = [
 ];
 
 const SAMPLE_JOBS = [
-  { 
-    id: 1, title: 'Downtown Office Building', customer: 'ABC Construction', crane: 'Grove RT890E', 
-    operator: 'Mike Johnson', date: '2025-07-20', status: 'In Progress', duration: '8 hours', 
+  {
+    id: 1, title: 'Downtown Office Building', customer: 'ABC Construction', crane: 'Grove RT890E',
+    operator: 'Mike Johnson', date: '2025-07-20', status: 'In Progress', duration: '8 hours',
     rate: '$150/hour', notes: 'High-rise construction project'
   },
-  { 
-    id: 2, title: 'Warehouse Construction', customer: 'XYZ Builders', crane: 'Manitex TC50155', 
-    operator: 'John Smith', date: '2025-07-22', status: 'Scheduled', duration: '6 hours', 
+  {
+    id: 2, title: 'Warehouse Construction', customer: 'XYZ Builders', crane: 'Manitex TC50155',
+    operator: 'John Smith', date: '2025-07-22', status: 'Scheduled', duration: '6 hours',
     rate: '$125/hour', notes: 'Industrial warehouse lifting'
   }
 ];
@@ -153,6 +153,7 @@ function App() {
     if (currentView === 'load-calculator') {
       calculateLoad();
     }
+    // eslint-disable-next-line
   }, [workingRadius, boomLength, loadWeight, outriggerConfig, selectedModel, currentView]);
 
   const checkAuth = async (token) => {
@@ -230,7 +231,7 @@ function App() {
     setModalType(type);
     setSelectedItem(item);
     setShowModal(true);
-    
+
     if (type === 'crane') {
       setCraneForm(item || { make: '', model: '', year: '', capacity: '', serialNumber: '', location: '', status: 'Available' });
     } else if (type === 'operator') {
@@ -289,7 +290,8 @@ function App() {
     const colors = {
       'Available': '#10b981', 'In Use': '#f59e0b', 'Maintenance': '#ef4444', 'Out of Service': '#6b7280',
       'Active': '#10b981', 'Expiring Soon': '#f59e0b', 'Expired': '#ef4444',
-      'Scheduled': '#3b82f6', 'In Progress': '#f59e0b', 'Completed': '#10b981', 'Passed': '#10b981', 'Failed': '#ef4444'
+      'Scheduled': '#3b82f6', 'In Progress': '#f59e0b', 'Completed': '#10b981', 'Passed': '#10b981', 'Failed': '#ef4444',
+      'Pass': '#10b981', 'Fail': '#ef4444'
     };
     return colors[status] || '#6b7280';
   };
@@ -302,7 +304,7 @@ function App() {
     const chart = currentModel.loadChart;
     const availableRadii = Object.keys(chart).map(Number).sort((a, b) => a - b);
     let closestRadius = availableRadii[0];
-    
+
     for (let radius of availableRadii) {
       if (radius <= workingRadius) {
         closestRadius = radius;
@@ -312,7 +314,7 @@ function App() {
     }
 
     const capacityAtRadius = chart[closestRadius]?.[boomLength] || 0;
-    
+
     let capacityReduction = 1.0;
     if (outriggerConfig === 'partially-extended') capacityReduction = 0.85;
     else if (outriggerConfig === 'on-rubber') capacityReduction = 0.75;
@@ -341,7 +343,7 @@ function App() {
   };
 
   const getSafetyColor = () => {
-    if (!calculation) return '#gray';
+    if (!calculation) return 'gray';
     if (calculation.isWithinCapacity && calculation.safetyFactor >= 1.25) return '#10b981';
     if (calculation.isWithinCapacity && calculation.safetyFactor >= 1.1) return '#f59e0b';
     return '#ef4444';
@@ -352,8 +354,11 @@ function App() {
     if (!currentModel) return [];
     const chart = currentModel.loadChart;
     const firstEntry = Object.values(chart)[0];
+    if (!firstEntry) return [];
     return Object.keys(firstEntry);
   };
+
+  // --- UI RENDERING BELOW ---
 
   if (user) {
     return (
@@ -399,6 +404,7 @@ function App() {
         </nav>
 
         <main style={{ padding: '2rem' }}>
+          {/* -- DASHBOARD -- */}
           {currentView === 'dashboard' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
@@ -441,6 +447,7 @@ function App() {
             </div>
           )}
 
+          {/* -- CRANES -- */}
           {currentView === 'cranes' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -487,6 +494,7 @@ function App() {
             </div>
           )}
 
+          {/* -- OPERATORS -- */}
           {currentView === 'operators' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -545,6 +553,7 @@ function App() {
             </div>
           )}
 
+          {/* -- JOBS -- */}
           {currentView === 'jobs' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -593,6 +602,7 @@ function App() {
             </div>
           )}
 
+          {/* -- INSPECTIONS -- */}
           {currentView === 'inspections' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -651,6 +661,7 @@ function App() {
             </div>
           )}
 
+          {/* -- LOAD CALCULATOR -- */}
           {currentView === 'load-calculator' && (
             <div>
               {!hasLoadCalculatorAccess() ? (
@@ -674,9 +685,9 @@ function App() {
                   }}>
                     <h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Professional Plan - $99/month</h4>
                     <div style={{ color: '#6b7280', textAlign: 'left' }}>
-                      • Access to all Manitex boom truck models<br/>
-                      • Real-time load capacity calculations<br/>
-                      • Safety factor analysis<br/>
+                      • Access to all Manitex boom truck models<br />
+                      • Real-time load capacity calculations<br />
+                      • Safety factor analysis<br />
                       • Printable load calculation reports
                     </div>
                   </div>
@@ -727,16 +738,16 @@ function App() {
                       ].map((field, idx) => (
                         <div key={idx} style={{ marginBottom: '1.5rem' }}>
                           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>{field.label}</label>
-                          <input 
+                          <input
                             type={field.type}
                             value={field.value}
                             min={field.min}
                             max={field.max}
                             step={field.step}
-                            onChange={(e) => field.setter(Number(e.target.value))} 
+                            onChange={(e) => field.setter(Number(e.target.value))}
                             style={{
                               width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                            }} 
+                            }}
                           />
                         </div>
                       ))}
@@ -819,6 +830,7 @@ function App() {
           )}
         </main>
 
+        {/* --- MODALS --- */}
         {showModal && (
           <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0, 0, 0, 0.5)',
@@ -844,13 +856,13 @@ function App() {
                   ].map(item => (
                     <div key={item.field}>
                       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>{item.label}</label>
-                      <input value={craneForm[item.field]} onChange={(e) => setCraneForm({...craneForm, [item.field]: e.target.value})}
+                      <input value={craneForm[item.field]} onChange={(e) => setCraneForm({ ...craneForm, [item.field]: e.target.value })}
                         style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }} />
                     </div>
                   ))}
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Status</label>
-                    <select value={craneForm.status} onChange={(e) => setCraneForm({...craneForm, status: e.target.value})}
+                    <select value={craneForm.status} onChange={(e) => setCraneForm({ ...craneForm, status: e.target.value })}
                       style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }}>
                       {['Available', 'In Use', 'Maintenance', 'Out of Service'].map(status => (
                         <option key={status} value={status}>{status}</option>
@@ -873,13 +885,13 @@ function App() {
                   ].map(item => (
                     <div key={item.field}>
                       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>{item.label}</label>
-                      <input value={operatorForm[item.field]} onChange={(e) => setOperatorForm({...operatorForm, [item.field]: e.target.value})}
+                      <input value={operatorForm[item.field]} onChange={(e) => setOperatorForm({ ...operatorForm, [item.field]: e.target.value })}
                         style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }} />
                     </div>
                   ))}
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Status</label>
-                    <select value={operatorForm.status} onChange={(e) => setOperatorForm({...operatorForm, status: e.target.value})}
+                    <select value={operatorForm.status} onChange={(e) => setOperatorForm({ ...operatorForm, status: e.target.value })}
                       style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }}>
                       {['Available', 'On Job', 'Off Duty', 'Training'].map(status => (
                         <option key={status} value={status}>{status}</option>
@@ -902,8 +914,8 @@ function App() {
                   ].map(item => (
                     <div key={item.field}>
                       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>{item.label}</label>
-                      <input type={item.type || 'text'} value={jobForm[item.field]} 
-                        onChange={(e) => setJobForm({...jobForm, [item.field]: e.target.value})}
+                      <input type={item.type || 'text'} value={jobForm[item.field]}
+                        onChange={(e) => setJobForm({ ...jobForm, [item.field]: e.target.value })}
                         style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }} />
                     </div>
                   ))}
@@ -913,7 +925,7 @@ function App() {
                   ].map(item => (
                     <div key={item.field}>
                       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>{item.label}</label>
-                      <select value={jobForm[item.field]} onChange={(e) => setJobForm({...jobForm, [item.field]: e.target.value})}
+                      <select value={jobForm[item.field]} onChange={(e) => setJobForm({ ...jobForm, [item.field]: e.target.value })}
                         style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }}>
                         <option value="">Select {item.label}</option>
                         {item.options.map(option => (
@@ -935,6 +947,7 @@ function App() {
     );
   }
 
+  // LOGIN/REGISTER UI
   return (
     <div style={{ minHeight: '100vh', display: 'flex', fontFamily: 'system-ui', background: '#f8fafc' }}>
       <div style={{
@@ -951,7 +964,7 @@ function App() {
           <p style={{ fontSize: '1.2rem', opacity: 0.9, lineHeight: '1.6' }}>
             Complete crane management platform with fleet tracking, job scheduling, OSHA inspections, and Manitex load calculations.
           </p>
-          <div style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.8' }}>
+          <div style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.8 }}>
             ✅ Fleet Management • 📋 OSHA Inspections • 🏗️ Load Calculator
           </div>
         </div>
@@ -972,14 +985,14 @@ function App() {
               {isLogin ? 'Access your crane management dashboard' : 'Start managing your crane operations'}
             </p>
           </div>
-          
+
           {error && (
             <div style={{
               background: '#fecaca', color: '#991b1b', padding: '0.75rem', borderRadius: '0.5rem',
               marginBottom: '1rem', border: '1px solid #fca5a5', fontSize: '0.9rem'
             }}>{error}</div>
           )}
-          
+
           {isLogin ? (
             <div>
               {[
@@ -988,21 +1001,21 @@ function App() {
               ].map((field, idx) => (
                 <div key={idx} style={{ marginBottom: idx === 0 ? '1rem' : '1.5rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                  <input 
+                  <input
                     type={field.type}
                     value={field.value}
                     placeholder={field.placeholder}
-                    onChange={(e) => field.setter(e.target.value)} 
-                    required 
-                    disabled={loading} 
+                    onChange={(e) => field.setter(e.target.value)}
+                    required
+                    disabled={loading}
                     style={{
                       width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem',
                       fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s'
-                    }} 
+                    }}
                   />
                 </div>
               ))}
-              
+
               <button onClick={handleLogin} disabled={loading || !email || !password} style={{
                 width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                 color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
@@ -1018,16 +1031,16 @@ function App() {
                 ].map((field, idx) => (
                   <div key={idx}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                    <input 
+                    <input
                       type="text"
                       value={field.value}
                       placeholder={field.placeholder}
-                      onChange={(e) => field.setter(e.target.value)} 
-                      required 
-                      disabled={loading} 
+                      onChange={(e) => field.setter(e.target.value)}
+                      required
+                      disabled={loading}
                       style={{
                         width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                      }} 
+                      }}
                     />
                   </div>
                 ))}
@@ -1040,16 +1053,16 @@ function App() {
               ].map((field, idx) => (
                 <div key={idx} style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                  <input 
+                  <input
                     type={field.type || 'text'}
                     value={field.value}
                     placeholder={field.placeholder}
-                    onChange={(e) => field.setter(e.target.value)} 
-                    required 
-                    disabled={loading} 
+                    onChange={(e) => field.setter(e.target.value)}
+                    required
+                    disabled={loading}
                     style={{
                       width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                    }} 
+                    }}
                   />
                 </div>
               ))}
@@ -1057,23 +1070,23 @@ function App() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Phone</label>
-                  <input 
-                    type="tel" 
-                    value={companyPhone} 
+                  <input
+                    type="tel"
+                    value={companyPhone}
                     onChange={(e) => setCompanyPhone(e.target.value)}
-                    placeholder="(555) 123-4567" 
-                    disabled={loading} 
+                    placeholder="(555) 123-4567"
+                    disabled={loading}
                     style={{
                       width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                    }} 
+                    }}
                   />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Plan</label>
-                  <select 
-                    value={plan} 
-                    onChange={(e) => setPlan(e.target.value)} 
-                    disabled={loading} 
+                  <select
+                    value={plan}
+                    onChange={(e) => setPlan(e.target.value)}
+                    disabled={loading}
                     style={{
                       width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
                     }}
@@ -1087,21 +1100,21 @@ function App() {
 
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Address</label>
-                <input 
-                  type="text" 
-                  value={companyAddress} 
+                <input
+                  type="text"
+                  value={companyAddress}
                   onChange={(e) => setCompanyAddress(e.target.value)}
-                  placeholder="123 Main St, City, State" 
-                  disabled={loading} 
+                  placeholder="123 Main St, City, State"
+                  disabled={loading}
                   style={{
                     width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                  }} 
+                  }}
                 />
               </div>
-              
-              <button 
-                onClick={handleRegistration} 
-                disabled={loading || !regEmail || !regPassword || !companyName || !firstName || !lastName} 
+
+              <button
+                onClick={handleRegistration}
+                disabled={loading || !regEmail || !regPassword || !companyName || !firstName || !lastName}
                 style={{
                   width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
@@ -1112,7 +1125,7 @@ function App() {
               </button>
             </div>
           )}
-          
+
           <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
             <button onClick={() => { setIsLogin(!isLogin); setError(''); }} style={{
               background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer',
