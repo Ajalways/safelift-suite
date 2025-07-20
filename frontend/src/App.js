@@ -1400,7 +1400,7 @@ function App() {
           <p style={{ fontSize: '1.2rem', opacity: 0.9, lineHeight: '1.6' }}>
             Complete crane management platform with fleet tracking, job scheduling, OSHA inspections, and Manitex load calculations.
           </p>
-          <div style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.8' }}>
+          <div style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.8 }}>
             ✅ Fleet Management • 📋 OSHA Inspections • 🏗️ Load Calculator
           </div>
         </div>
