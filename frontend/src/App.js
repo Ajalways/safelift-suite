@@ -655,7 +655,7 @@ function App() {
           )}
 
           {currentView === 'load-calculator' && (
-            <React.Fragment>
+            <div>
               {!hasLoadCalculatorAccess() ? (
                 <div style={{
                   background: 'white', padding: '2rem', borderRadius: '1rem',
@@ -774,7 +774,7 @@ function App() {
                       <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>Load Calculation Results</h2>
 
                       {calculation && (
-                        <React.Fragment>
+                        <div>
                           <div style={{
                             background: calculation.isWithinCapacity ? 'linear-gradient(135deg, #ecfdf5, #d1fae5)' : 'linear-gradient(135deg, #fef2f2, #fecaca)',
                             padding: '1rem', borderRadius: '0.75rem', border: `2px solid ${getSafetyColor()}`, marginBottom: '1.5rem'
@@ -812,13 +812,13 @@ function App() {
                               padding: '0.75rem 1rem', borderRadius: '0.5rem', fontWeight: '600', cursor: 'pointer'
                             }}>Print Report</button>
                           </div>
-                        </React.Fragment>
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
               )}
-            </React.Fragment>
+            </div>
           )}
         </main>
 
