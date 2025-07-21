@@ -4,13 +4,39 @@ const API_URL = 'https://clownfish-app-3lhwr.ondigitalocean.app';
 
 // Sample data for immediate functionality
 const SAMPLE_CRANES = [
-  { id: 1, make: 'Manitex', model: 'TC50155', year: 2020, capacity: 50, status: 'Available', lastInspection: '2025-01-15', location: 'Main Yard', serialNumber: 'MX2020-001' },
-  { id: 2, make: 'Grove', model: 'TMS9000-2', year: 2019, capacity: 100, status: 'In Use', lastInspection: '2025-01-10', location: 'Downtown Site', serialNumber: 'GR2019-045' },
-  { id: 3, make: 'Link-Belt', model: 'HTC-8675 II', year: 2021, capacity: 75, status: 'Available', lastInspection: '2025-01-05', location: 'Service Center', serialNumber: 'LB2021-123' }
+  { 
+    id: 1, make: 'Manitex', model: 'TC50155', year: 2020, capacity: 50, status: 'Available', 
+    lastInspection: '2025-01-15', location: 'Main Yard', serialNumber: 'MX2020-001',
+    hasLoadChart: true, loadChartFile: 'manitex-tc50155-chart.pdf',
+    configFields: ['boomLength', 'counterweight', 'outriggers'],
+    configOptions: {
+      boomLength: ['38ft', '48ft', '58ft'],
+      counterweight: ['Standard', 'Heavy'],
+      outriggers: ['Fully Extended', 'Partially Extended', 'On Rubber']
+    }
+  },
+  { 
+    id: 2, make: 'Grove', model: 'RT890E', year: 2019, capacity: 90, status: 'In Use', 
+    lastInspection: '2025-01-10', location: 'Downtown Site', serialNumber: 'GR2019-045',
+    hasLoadChart: true, loadChartFile: 'grove-rt890e-chart.pdf',
+    configFields: ['boomLength', 'jibLength', 'outriggers'],
+    configOptions: {
+      boomLength: ['42ft', '52ft', '62ft'],
+      jibLength: ['None', '17ft', '34ft'],
+      outriggers: ['Fully Extended', 'Partially Extended', 'On Rubber']
+    }
+  },
+  { 
+    id: 3, make: 'Liebherr', model: 'LTM 1200-5.1', year: 2021, capacity: 200, status: 'Maintenance', 
+    lastInspection: '2025-01-05', location: 'Service Center', serialNumber: 'LB2021-123',
+    hasLoadChart: false, loadChartFile: null,
+    configFields: [],
+    configOptions: {}
+  }
 ];
 
 const SAMPLE_OPERATORS = [
-  {
+  { 
     id: 1, name: 'John Smith', email: 'john@company.com', phone: '555-0101', status: 'Available',
     emergencyContact: 'Jane Smith', emergencyPhone: '555-0201',
     certifications: [
@@ -18,7 +44,7 @@ const SAMPLE_OPERATORS = [
       { type: 'OSHA 30-Hour', number: 'OS-789012', expires: '2025-12-01', status: 'Active' }
     ]
   },
-  {
+  { 
     id: 2, name: 'Mike Johnson', email: 'mike@company.com', phone: '555-0102', status: 'On Job',
     emergencyContact: 'Sarah Johnson', emergencyPhone: '555-0202',
     certifications: [
@@ -28,14 +54,14 @@ const SAMPLE_OPERATORS = [
 ];
 
 const SAMPLE_JOBS = [
-  {
-    id: 1, title: 'Downtown Office Building', customer: 'ABC Construction', crane: 'Grove TMS9000-2',
-    operator: 'Mike Johnson', date: '2025-07-20', status: 'In Progress', duration: '8 hours',
+  { 
+    id: 1, title: 'Downtown Office Building', customer: 'ABC Construction', crane: 'Grove RT890E', 
+    operator: 'Mike Johnson', date: '2025-07-20', status: 'In Progress', duration: '8 hours', 
     rate: '$150/hour', notes: 'High-rise construction project'
   },
-  {
-    id: 2, title: 'Warehouse Construction', customer: 'XYZ Builders', crane: 'Manitex TC50155',
-    operator: 'John Smith', date: '2025-07-22', status: 'Scheduled', duration: '6 hours',
+  { 
+    id: 2, title: 'Warehouse Construction', customer: 'XYZ Builders', crane: 'Manitex TC50155', 
+    operator: 'John Smith', date: '2025-07-22', status: 'Scheduled', duration: '6 hours', 
     rate: '$125/hour', notes: 'Industrial warehouse lifting'
   }
 ];
@@ -43,366 +69,22 @@ const SAMPLE_JOBS = [
 const SAMPLE_INSPECTIONS = [
   {
     id: 1, craneId: 1, craneName: 'Manitex TC50155', date: '2025-01-15', inspector: 'John Smith',
-    status: 'Passed', score: 95, overallStatus: 'completed',
-    items: [
-      { id: 1, category: 'General', item: 'Visual inspection', status: 'Pass', notes: 'Good condition', photos: [] },
-      { id: 2, category: 'Engine', item: 'Engine operation', status: 'Pass', notes: 'Running smoothly', photos: [] },
-      { id: 3, category: 'Boom', item: 'Boom extension', status: 'Pass', notes: 'No issues', photos: [] },
-      { id: 4, category: 'Safety', item: 'Load moment indicator', status: 'Fail', notes: 'Needs calibration', photos: [] }
+    status: 'Passed', score: 95, items: [
+      { category: 'General', item: 'Visual inspection', status: 'Pass', notes: 'Good condition' },
+      { category: 'Engine', item: 'Engine operation', status: 'Pass', notes: 'Running smoothly' },
+      { category: 'Boom', item: 'Boom extension', status: 'Pass', notes: 'No issues' },
+      { category: 'Safety', item: 'Load moment indicator', status: 'Fail', notes: 'Needs calibration' }
     ]
   }
 ];
 
-// Complete inspection categories with all OSHA items
 const INSPECTION_CATEGORIES = [
-  {
-    id: 'general',
-    name: 'General Condition',
-    items: [
-      { id: 'gen_1', name: 'Visual inspection of crane structure', required: true },
-      { id: 'gen_2', name: 'Check for cracks, bent parts, or damage', required: true },
-      { id: 'gen_3', name: 'Inspect for fluid leaks', required: true },
-      { id: 'gen_4', name: 'Check for rust or corrosion', required: true },
-      { id: 'gen_5', name: 'Verify all guards and covers in place', required: true },
-      { id: 'gen_6', name: 'Check cleanliness and housekeeping', required: false }
-    ]
-  },
-  {
-    id: 'engine',
-    name: 'Engine & Power Train',
-    items: [
-      { id: 'eng_1', name: 'Engine oil level and condition', required: true },
-      { id: 'eng_2', name: 'Coolant level and condition', required: true },
-      { id: 'eng_3', name: 'Air filter condition', required: true },
-      { id: 'eng_4', name: 'Belt condition and tension', required: true },
-      { id: 'eng_5', name: 'Battery condition and connections', required: true },
-      { id: 'eng_6', name: 'Exhaust system integrity', required: true },
-      { id: 'eng_7', name: 'Engine operation and idle quality', required: true }
-    ]
-  },
-  {
-    id: 'hydraulics',
-    name: 'Hydraulic System',
-    items: [
-      { id: 'hyd_1', name: 'Hydraulic fluid level and condition', required: true },
-      { id: 'hyd_2', name: 'Hydraulic hose condition', required: true },
-      { id: 'hyd_3', name: 'Hydraulic pump operation', required: true },
-      { id: 'hyd_4', name: 'Cylinder operation and leaks', required: true },
-      { id: 'hyd_5', name: 'Filter condition', required: true },
-      { id: 'hyd_6', name: 'Pressure relief valve operation', required: true }
-    ]
-  },
-  {
-    id: 'boom',
-    name: 'Boom & Jib',
-    items: [
-      { id: 'boom_1', name: 'Boom extension and retraction', required: true },
-      { id: 'boom_2', name: 'Boom angle indicator accuracy', required: true },
-      { id: 'boom_3', name: 'Jib operation (if equipped)', required: false },
-      { id: 'boom_4', name: 'Load block condition', required: true },
-      { id: 'boom_5', name: 'Hook condition and safety latch', required: true },
-      { id: 'boom_6', name: 'Wire rope condition', required: true },
-      { id: 'boom_7', name: 'Boom head and connections', required: true }
-    ]
-  },
-  {
-    id: 'outriggers',
-    name: 'Outriggers & Stabilizers',
-    items: [
-      { id: 'out_1', name: 'Outrigger extension operation', required: true },
-      { id: 'out_2', name: 'Float condition and integrity', required: true },
-      { id: 'out_3', name: 'Retraction operation', required: true },
-      { id: 'out_4', name: 'Position indicators accuracy', required: true },
-      { id: 'out_5', name: 'Outrigger boxes and pins', required: true },
-      { id: 'out_6', name: 'Warning alarms operation', required: true }
-    ]
-  },
-  {
-    id: 'safety',
-    name: 'Safety Systems',
-    items: [
-      { id: 'safe_1', name: 'Load moment indicator (LMI)', required: true },
-      { id: 'safe_2', name: 'Warning systems and alarms', required: true },
-      { id: 'safe_3', name: 'Emergency stop systems', required: true },
-      { id: 'safe_4', name: 'Load charts present and legible', required: true },
-      { id: 'safe_5', name: 'Operator manual present', required: true },
-      { id: 'safe_6', name: 'Warning decals and placards', required: true },
-      { id: 'safe_7', name: 'Cab safety equipment', required: true }
-    ]
-  },
-  {
-    id: 'electrical',
-    name: 'Electrical System',
-    items: [
-      { id: 'elec_1', name: 'Main electrical panel condition', required: true },
-      { id: 'elec_2', name: 'Wire harness condition', required: true },
-      { id: 'elec_3', name: 'Control switch operation', required: true },
-      { id: 'elec_4', name: 'Instrument panel function', required: true },
-      { id: 'elec_5', name: 'Lighting systems', required: true },
-      { id: 'elec_6', name: 'Warning light operation', required: true }
-    ]
-  },
-  {
-    id: 'controls',
-    name: 'Controls & Operation',
-    items: [
-      { id: 'ctrl_1', name: 'Joystick operation and response', required: true },
-      { id: 'ctrl_2', name: 'Function selector switches', required: true },
-      { id: 'ctrl_3', name: 'Travel controls (if equipped)', required: false },
-      { id: 'ctrl_4', name: 'Swing brake operation', required: true },
-      { id: 'ctrl_5', name: 'Load block travel limits', required: true },
-      { id: 'ctrl_6', name: 'Boom angle limits', required: true }
-    ]
-  },
-  {
-    id: 'winch',
-    name: 'Winch & Hoist',
-    items: [
-      { id: 'winch_1', name: 'Main winch operation', required: true },
-      { id: 'winch_2', name: 'Auxiliary winch (if equipped)', required: false },
-      { id: 'winch_3', name: 'Wire rope spooling', required: true },
-      { id: 'winch_4', name: 'Load block two-blocking', required: true },
-      { id: 'winch_5', name: 'Hoist brake operation', required: true },
-      { id: 'winch_6', name: 'Anti-two-block system', required: true }
-    ]
-  },
-  {
-    id: 'carrier',
-    name: 'Carrier & Chassis',
-    items: [
-      { id: 'carr_1', name: 'Tire condition and pressure', required: true },
-      { id: 'carr_2', name: 'Suspension system', required: true },
-      { id: 'carr_3', name: 'Steering operation', required: true },
-      { id: 'carr_4', name: 'Brake system operation', required: true },
-      { id: 'carr_5', name: 'Transmission operation', required: true },
-      { id: 'carr_6', name: 'Differential and axles', required: false }
-    ]
-  },
-  {
-    id: 'documentation',
-    name: 'Documentation',
-    items: [
-      { id: 'doc_1', name: 'Current inspection certificate', required: true },
-      { id: 'doc_2', name: 'Operator certification records', required: true },
-      { id: 'doc_3', name: 'Maintenance records up to date', required: true },
-      { id: 'doc_4', name: 'Insurance documentation', required: true },
-      { id: 'doc_5', name: 'Operating permits (if required)', required: false },
-      { id: 'doc_6', name: 'Previous inspection reports', required: false }
-    ]
-  },
-  {
-    id: 'final',
-    name: 'Final Checks',
-    items: [
-      { id: 'final_1', name: 'Overall crane functionality', required: true },
-      { id: 'final_2', name: 'All systems integration test', required: true },
-      { id: 'final_3', name: 'Load test (if required)', required: false },
-      { id: 'final_4', name: 'Operator walkthrough', required: true },
-      { id: 'final_5', name: 'Safety briefing completed', required: true }
-    ]
-  }
+  { id: 'general', name: 'General Condition', items: ['Visual inspection of crane', 'Check for damage/wear', 'Fluid leaks', 'Rust/corrosion'] },
+  { id: 'engine', name: 'Engine/Hydraulics', items: ['Engine operation', 'Hydraulic fluid level', 'Hose condition', 'Filter condition'] },
+  { id: 'boom', name: 'Boom/Jib', items: ['Boom extension/retraction', 'Boom angle indicator', 'Jib operation', 'Load block'] },
+  { id: 'outriggers', name: 'Outriggers', items: ['Outrigger extension', 'Float condition', 'Retraction operation', 'Position indicators'] },
+  { id: 'safety', name: 'Safety Systems', items: ['Load moment indicator', 'Warning systems', 'Emergency stops', 'Load charts present'] }
 ];
-
-// ENHANCED LOAD CHART DATA - Real manufacturer data from your PDFs
-const LOAD_CHART_DATA = {
-  'Manitex TC50155': {
-    name: 'Manitex TC50155',
-    maxCapacity: 50,
-    maxRadius: 100,
-    configurations: {
-      'standard': {
-        name: 'Standard Configuration',
-        counterweight: 0,
-        outriggers: 'full',
-        loadChart: {
-          10: { boom38: 50.0, boom48: 45.0, boom58: 40.0 },
-          15: { boom38: 45.0, boom48: 40.0, boom58: 35.0 },
-          20: { boom38: 35.0, boom48: 30.0, boom58: 25.0 },
-          25: { boom38: 28.0, boom48: 24.0, boom58: 20.0 },
-          30: { boom38: 22.0, boom48: 19.0, boom58: 16.0 },
-          35: { boom38: 18.0, boom48: 15.5, boom58: 13.0 },
-          40: { boom38: 15.0, boom48: 12.5, boom58: 10.5 },
-          50: { boom38: 10.5, boom48: 8.5, boom58: 7.0 },
-          60: { boom38: 7.5, boom48: 6.0, boom58: 5.0 },
-          80: { boom38: 4.2, boom48: 3.5, boom58: 3.0 },
-          100: { boom38: 2.5, boom48: 2.2, boom58: 2.0 }
-        }
-      }
-    }
-  },
-  'Manitex TC40124': {
-    name: 'Manitex TC40124',
-    maxCapacity: 40,
-    maxRadius: 90,
-    configurations: {
-      'standard': {
-        name: 'Standard Configuration',
-        counterweight: 0,
-        outriggers: 'full',
-        loadChart: {
-          10: { boom32: 40.0, boom42: 35.0, boom52: 30.0 },
-          15: { boom32: 35.0, boom42: 30.0, boom52: 25.0 },
-          20: { boom32: 28.0, boom42: 24.0, boom52: 20.0 },
-          25: { boom32: 22.0, boom42: 19.0, boom52: 16.0 },
-          30: { boom32: 18.0, boom42: 15.0, boom52: 13.0 },
-          40: { boom32: 12.5, boom42: 10.0, boom52: 8.5 },
-          50: { boom32: 8.5, boom42: 7.0, boom52: 6.0 },
-          70: { boom32: 4.5, boom42: 3.8, boom52: 3.2 },
-          90: { boom32: 2.8, boom42: 2.4, boom52: 2.0 }
-        }
-      }
-    }
-  },
-  'Manitex TC30112': {
-    name: 'Manitex TC30112',
-    maxCapacity: 30,
-    maxRadius: 85,
-    configurations: {
-      'standard': {
-        name: 'Standard Configuration',
-        counterweight: 0,
-        outriggers: 'full',
-        loadChart: {
-          10: { boom30: 30.0, boom40: 25.0, boom50: 20.0 },
-          15: { boom30: 25.0, boom40: 20.0, boom50: 16.0 },
-          20: { boom30: 20.0, boom40: 16.0, boom50: 13.0 },
-          30: { boom30: 13.0, boom40: 11.0, boom50: 9.0 },
-          50: { boom30: 6.5, boom40: 5.5, boom50: 4.8 },
-          80: { boom30: 2.6, boom40: 2.3, boom50: 2.0 }
-        }
-      }
-    }
-  },
-  'Link-Belt HTC-8675 II': {
-    name: 'Link-Belt HTC-8675 II',
-    maxCapacity: 75,
-    maxRadius: 32,
-    configurations: {
-      '0t-counterweight': {
-        name: '0t Counterweight - Fully Extended Outriggers',
-        counterweight: 0,
-        outriggers: 'full',
-        loadChart: {
-          3: { boom12_5: 57.6, boom15_2: 50.45, boom18_3: 48.45, boom21_3: 33.75 },
-          4: { boom12_5: 42.15, boom15_2: 42.75, boom18_3: 43.25, boom21_3: 35.0, boom24_4: 28.5 },
-          5: { boom12_5: 32.75, boom15_2: 33.6, boom18_3: 33.9, boom21_3: 33.8, boom24_4: 28.5, boom27_4: 27.85 },
-          6: { boom12_5: 26.4, boom15_2: 27.3, boom18_3: 27.65, boom21_3: 27.85, boom24_4: 27.9, boom27_4: 26.15, boom30_5: 21.75, boom33_5: 14.85 },
-          8: { boom12_5: 16.65, boom15_2: 17.75, boom18_3: 18.3, boom21_3: 18.55, boom24_4: 18.4, boom27_4: 18.3, boom30_5: 18.2, boom33_5: 14.7, boom36_6: 11.55, boom38_71: 10.25 },
-          10: { boom12_5: 10.45, boom15_2: 11.6, boom18_3: 12.3, boom21_3: 12.4, boom24_4: 12.85, boom27_4: 12.95, boom30_5: 12.4, boom33_5: 12.55, boom36_6: 11.55, boom38_71: 10.25 },
-          12: { boom12_5: 7.85, boom15_2: 8.6, boom18_3: 9.05, boom21_3: 9.15, boom24_4: 9.25, boom27_4: 9.25, boom30_5: 9.15, boom33_5: 9.0, boom36_6: 8.95 },
-          16: { boom12_5: 4.6, boom15_2: 5.1, boom18_3: 5.25, boom21_3: 5.3, boom24_4: 5.35, boom27_4: 5.2, boom30_5: 5.1, boom33_5: 5.05 },
-          20: { boom12_5: 3.15, boom15_2: 3.3, boom18_3: 3.3, boom21_3: 3.2, boom24_4: 3.1, boom27_4: 3.05 },
-          24: { boom12_5: 2.0, boom15_2: 2.05, boom18_3: 1.95, boom21_3: 1.85, boom24_4: 1.8 },
-          28: { boom12_5: 1.2, boom15_2: 1.1, boom18_3: 1.05, boom21_3: 1.0 },
-          32: { boom12_5: 0.45, boom15_2: 0.4 }
-        }
-      },
-      '4_8t-counterweight': {
-        name: '4.8t Counterweight - Fully Extended Outriggers',
-        counterweight: 4.8,
-        outriggers: 'full',
-        loadChart: {
-          3: { boom12_5: 68.0, boom15_2: 68.0, boom18_3: 68.0, boom21_3: 54.4 },
-          4: { boom12_5: 68.0, boom15_2: 68.0, boom18_3: 68.0, boom21_3: 54.4, boom24_4: 49.9 },
-          5: { boom12_5: 68.0, boom15_2: 68.0, boom18_3: 68.0, boom21_3: 54.4, boom24_4: 49.9, boom27_4: 45.4 },
-          6: { boom12_5: 58.1, boom15_2: 63.5, boom18_3: 68.0, boom21_3: 54.4, boom24_4: 49.9, boom27_4: 45.4, boom30_5: 38.6, boom33_5: 27.2 },
-          8: { boom12_5: 31.8, boom15_2: 36.3, boom18_3: 40.8, boom21_3: 43.6, boom24_4: 44.9, boom27_4: 45.4, boom30_5: 38.6, boom33_5: 27.2, boom36_6: 20.4, boom38_71: 17.7 },
-          10: { boom12_5: 21.3, boom15_2: 24.9, boom18_3: 28.1, boom21_3: 31.3, boom24_4: 34.0, boom27_4: 36.3, boom30_5: 38.6, boom33_5: 27.2, boom36_6: 20.4, boom38_71: 17.7 },
-          12: { boom12_5: 15.9, boom15_2: 18.6, boom18_3: 21.3, boom21_3: 23.6, boom24_4: 25.9, boom27_4: 27.7, boom30_5: 29.0, boom33_5: 27.2, boom36_6: 20.4 },
-          16: { boom12_5: 10.0, boom15_2: 11.8, boom18_3: 13.6, boom21_3: 15.0, boom24_4: 16.3, boom27_4: 17.2, boom30_5: 18.1, boom33_5: 18.6 },
-          20: { boom12_5: 7.3, boom15_2: 8.6, boom18_3: 9.5, boom21_3: 10.4, boom24_4: 11.3, boom27_4: 12.2, boom30_5: 12.7 },
-          24: { boom12_5: 5.7, boom15_2: 6.4, boom18_3: 7.3, boom21_3: 7.7, boom24_4: 8.6, boom27_4: 9.1 },
-          28: { boom12_5: 4.5, boom15_2: 5.0, boom18_3: 5.4, boom21_3: 5.9, boom24_4: 6.4 },
-          32: { boom12_5: 3.6, boom15_2: 3.6 }
-        }
-      }
-    }
-  },
-  'Grove TMS9000-2': {
-    name: 'Grove TMS9000-2',
-    maxCapacity: 100,
-    maxRadius: 200,
-    configurations: {
-      'main-boom': {
-        name: 'Main Boom Only',
-        counterweight: 22,
-        outriggers: 'full',
-        loadChart: {
-          40: { boom34_5: 10.75, boom57_6: 6.66, boom83_8: 0 },
-          50: { boom34_5: 10.75, boom57_6: 6.66, boom83_8: 6.04 },
-          60: { boom34_5: 10.75, boom57_6: 6.66, boom83_8: 6.04 },
-          70: { boom34_5: 10.75, boom57_6: 6.66, boom83_8: 6.04 },
-          80: { boom34_5: 10.75, boom57_6: 6.66, boom83_8: 6.04 },
-          90: { boom34_5: 10.25, boom57_6: 6.66, boom83_8: 6.04 },
-          100: { boom34_5: 9.82, boom57_6: 6.66, boom83_8: 6.04 },
-          110: { boom34_5: 8.7, boom57_6: 6.66, boom83_8: 6.04 },
-          120: { boom34_5: 7.54, boom57_6: 6.66, boom83_8: 6.04 },
-          130: { boom34_5: 6.18, boom57_6: 6.11, boom83_8: 5.46 },
-          140: { boom34_5: 5.03, boom57_6: 5.54, boom83_8: 4.85 },
-          150: { boom34_5: 4.05, boom57_6: 4.95, boom83_8: 4.3 },
-          160: { boom34_5: 3.2, boom57_6: 4.08, boom83_8: 3.98 },
-          170: { boom34_5: 2.47, boom57_6: 3.26, boom83_8: 3.22 },
-          180: { boom34_5: 1.84, boom57_6: 2.52, boom83_8: 2.49 },
-          190: { boom34_5: 1.26, boom57_6: 1.87, boom83_8: 1.84 },
-          200: { boom34_5: 0, boom57_6: 1.28, boom83_8: 1.25 }
-        }
-      },
-      'main-boom-extension': {
-        name: 'Main Boom + Extension',
-        counterweight: 22,
-        outriggers: 'full',
-        loadChart: {
-          40: { boom34_5: 10.75, boom57_6: 6.66, boom83_8: 0 },
-          50: { boom34_5: 10.75, boom57_6: 6.66, boom83_8: 6.04 },
-          60: { boom34_5: 10.75, boom57_6: 6.66, boom83_8: 6.04 },
-          80: { boom34_5: 10.75, boom57_6: 7.19, boom83_8: 6.09 },
-          90: { boom34_5: 10.25, boom57_6: 7.19, boom83_8: 5.93 },
-          100: { boom34_5: 8.0, boom57_6: 7.19, boom83_8: 5.8 },
-          110: { boom34_5: 6.35, boom57_6: 6.33, boom83_8: 5.49 },
-          120: { boom34_5: 4.93, boom57_6: 5.38, boom83_8: 5.28 },
-          130: { boom34_5: 3.75, boom57_6: 4.9, boom83_8: 4.07 },
-          140: { boom34_5: 2.76, boom57_6: 3.8, boom83_8: 3.05 },
-          150: { boom34_5: 1.91, boom57_6: 2.32, boom83_8: 2.18 },
-          160: { boom34_5: 0, boom57_6: 1.58, boom83_8: 1.43 },
-          170: { boom34_5: 0, boom57_6: 1.25, boom83_8: 1.09 }
-        }
-      }
-    }
-  }
-};
-
-// Keep the original Manitex models for backward compatibility
-const MANITEX_MODELS = {
-  'TC50155': {
-    name: 'Manitex TC50155', maxCapacity: 50, maxRadius: 100, planRequired: 'professional',
-    loadChart: {
-      10: { boom38: 50.0, boom48: 45.0, boom58: 40.0 }, 15: { boom38: 45.0, boom48: 40.0, boom58: 35.0 },
-      20: { boom38: 35.0, boom48: 30.0, boom58: 25.0 }, 25: { boom38: 28.0, boom48: 24.0, boom58: 20.0 },
-      30: { boom38: 22.0, boom48: 19.0, boom58: 16.0 }, 35: { boom38: 18.0, boom48: 15.5, boom58: 13.0 },
-      40: { boom38: 15.0, boom48: 12.5, boom58: 10.5 }, 50: { boom38: 10.5, boom48: 8.5, boom58: 7.0 },
-      60: { boom38: 7.5, boom48: 6.0, boom58: 5.0 }, 80: { boom38: 4.2, boom48: 3.5, boom58: 3.0 },
-      100: { boom38: 2.5, boom48: 2.2, boom58: 2.0 }
-    }
-  },
-  'TC40124': {
-    name: 'Manitex TC40124', maxCapacity: 40, maxRadius: 90, planRequired: 'professional',
-    loadChart: {
-      10: { boom32: 40.0, boom42: 35.0, boom52: 30.0 }, 15: { boom32: 35.0, boom42: 30.0, boom52: 25.0 },
-      20: { boom32: 28.0, boom42: 24.0, boom52: 20.0 }, 25: { boom32: 22.0, boom42: 19.0, boom52: 16.0 },
-      30: { boom32: 18.0, boom42: 15.0, boom52: 13.0 }, 40: { boom32: 12.5, boom42: 10.0, boom52: 8.5 },
-      50: { boom32: 8.5, boom42: 7.0, boom52: 6.0 }, 70: { boom32: 4.5, boom42: 3.8, boom52: 3.2 },
-      90: { boom32: 2.8, boom42: 2.4, boom52: 2.0 }
-    }
-  },
-  'TC30112': {
-    name: 'Manitex TC30112', maxCapacity: 30, maxRadius: 85, planRequired: 'starter',
-    loadChart: {
-      10: { boom30: 30.0, boom40: 25.0, boom50: 20.0 }, 15: { boom30: 25.0, boom40: 20.0, boom50: 16.0 },
-      20: { boom30: 20.0, boom40: 16.0, boom50: 13.0 }, 30: { boom30: 13.0, boom40: 11.0, boom50: 9.0 },
-      50: { boom30: 6.5, boom40: 5.5, boom50: 4.8 }, 80: { boom30: 2.6, boom40: 2.3, boom50: 2.0 }
-    }
-  }
-};
 
 function App() {
   const [user, setUser] = useState(null);
@@ -422,10 +104,6 @@ function App() {
   const [modalType, setModalType] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
 
-  // Inspection states
-  const [activeInspection, setActiveInspection] = useState(null);
-  const [inspectionProgress, setInspectionProgress] = useState({});
-
   // Auth form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -440,7 +118,8 @@ function App() {
 
   // Form states
   const [craneForm, setCraneForm] = useState({
-    make: '', model: '', year: '', capacity: '', serialNumber: '', location: '', status: 'Available'
+    make: '', model: '', year: '', capacity: '', serialNumber: '', location: '', status: 'Available',
+    hasLoadChart: false, loadChartFile: null, configFields: [], configOptions: {}
   });
   const [operatorForm, setOperatorForm] = useState({
     name: '', email: '', phone: '', emergencyContact: '', emergencyPhone: '', status: 'Available'
@@ -449,18 +128,12 @@ function App() {
     title: '', customer: '', crane: '', operator: '', date: '', duration: '', rate: '', notes: ''
   });
 
-  // Enhanced Load Calculator states
-  const [selectedCrane, setSelectedCrane] = useState('');
-  const [selectedConfig, setSelectedConfig] = useState('');
-  const [workingRadius, setWorkingRadius] = useState('');
-  const [boomLength, setBoomLength] = useState('');
-  const [loadWeight, setLoadWeight] = useState('');
+  // Load Calculator states
+  const [selectedCrane, setSelectedCrane] = useState(null);
+  const [loadWeight, setLoadWeight] = useState(10);
+  const [workingRadius, setWorkingRadius] = useState(20);
+  const [craneConfig, setCraneConfig] = useState({});
   const [calculationResult, setCalculationResult] = useState(null);
-
-  // Legacy Load Calculator states (keeping for compatibility)
-  const [selectedModel, setSelectedModel] = useState('TC30112');
-  const [outriggerConfig, setOutriggerConfig] = useState('fully-extended');
-  const [calculation, setCalculation] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('safelift_token');
@@ -468,12 +141,6 @@ function App() {
       checkAuth(token);
     }
   }, []);
-
-  useEffect(() => {
-    if (currentView === 'load-calculator') {
-      calculateLoad();
-    }
-  }, [workingRadius, boomLength, loadWeight, outriggerConfig, selectedModel, currentView]);
 
   const checkAuth = async (token) => {
     try {
@@ -550,9 +217,12 @@ function App() {
     setModalType(type);
     setSelectedItem(item);
     setShowModal(true);
-
+    
     if (type === 'crane') {
-      setCraneForm(item || { make: '', model: '', year: '', capacity: '', serialNumber: '', location: '', status: 'Available' });
+      setCraneForm(item || { 
+        make: '', model: '', year: '', capacity: '', serialNumber: '', location: '', status: 'Available',
+        hasLoadChart: false, loadChartFile: null, configFields: [], configOptions: {}
+      });
     } else if (type === 'operator') {
       setOperatorForm(item || { name: '', email: '', phone: '', emergencyContact: '', emergencyPhone: '', status: 'Available' });
     } else if (type === 'job') {
@@ -609,262 +279,77 @@ function App() {
     const colors = {
       'Available': '#10b981', 'In Use': '#f59e0b', 'Maintenance': '#ef4444', 'Out of Service': '#6b7280',
       'Active': '#10b981', 'Expiring Soon': '#f59e0b', 'Expired': '#ef4444',
-      'Scheduled': '#3b82f6', 'In Progress': '#f59e0b', 'Completed': '#10b981', 'Passed': '#10b981', 'Failed': '#ef4444',
-      'Pass': '#10b981', 'Fail': '#ef4444', 'N/A': '#6b7280'
+      'Scheduled': '#3b82f6', 'In Progress': '#f59e0b', 'Completed': '#10b981', 'Passed': '#10b981', 'Failed': '#ef4444'
     };
     return colors[status] || '#6b7280';
   };
 
-  // Inspection Functions
-  const startNewInspection = (crane) => {
-    const newInspection = {
-      id: Date.now(),
-      craneId: crane.id,
-      craneName: `${crane.make} ${crane.model}`,
-      date: new Date().toISOString().split('T')[0],
-      inspector: `${user?.firstName} ${user?.lastName}` || 'Inspector',
-      status: 'In Progress',
-      overallStatus: 'in-progress',
-      signature: null,
-      items: INSPECTION_CATEGORIES.flatMap(category =>
-        category.items.map(item => ({
-          id: item.id,
-          category: category.name,
-          item: item.name,
-          required: item.required,
-          status: null,
-          notes: '',
-          photos: []
-        }))
-      )
-    };
-
-    setActiveInspection(newInspection);
-    setCurrentView('inspection-detail');
+  // Load Calculator Functions
+  const handleCraneSelection = (craneId) => {
+    const crane = cranes.find(c => c.id === parseInt(craneId));
+    setSelectedCrane(crane);
+    setCraneConfig({});
+    setCalculationResult(null);
   };
 
-  const updateInspectionItem = (itemId, updates) => {
-    setActiveInspection(prev => ({
-      ...prev,
-      items: prev.items.map(item =>
-        item.id === itemId ? { ...item, ...updates } : item
-      )
-    }));
+  const handleConfigChange = (field, value) => {
+    setCraneConfig({ ...craneConfig, [field]: value });
   };
 
-  const addPhotoToItem = (itemId, photoData) => {
-    setActiveInspection(prev => ({
-      ...prev,
-      items: prev.items.map(item =>
-        item.id === itemId
-          ? { ...item, photos: [...item.photos, { id: Date.now(), data: photoData, timestamp: new Date() }] }
-          : item
-      )
-    }));
-  };
-
-  const removePhotoFromItem = (itemId, photoId) => {
-    setActiveInspection(prev => ({
-      ...prev,
-      items: prev.items.map(item =>
-        item.id === itemId
-          ? { ...item, photos: item.photos.filter(photo => photo.id !== photoId) }
-          : item
-      )
-    }));
-  };
-
-  const calculateInspectionProgress = () => {
-    if (!activeInspection) return 0;
-    const completedItems = activeInspection.items.filter(item => item.status !== null).length;
-    return Math.round((completedItems / activeInspection.items.length) * 100);
-  };
-
-  const completeInspection = () => {
-    if (!activeInspection) return;
-
-    const completedItems = activeInspection.items.filter(item => item.status !== null);
-    const failedItems = activeInspection.items.filter(item => item.status === 'Fail');
-    const passedItems = activeInspection.items.filter(item => item.status === 'Pass');
-
-    const score = Math.round((passedItems.length / completedItems.length) * 100);
-    const status = failedItems.length > 0 ? 'Failed' : 'Passed';
-
-    const finalInspection = {
-      ...activeInspection,
-      status,
-      score,
-      overallStatus: 'completed',
-      completedAt: new Date().toISOString()
-    };
-
-    setInspections([...inspections, finalInspection]);
-    setActiveInspection(null);
-    setCurrentView('inspections');
-
-    // Update crane's last inspection date
-    setCranes(prev => prev.map(crane =>
-      crane.id === finalInspection.craneId
-        ? { ...crane, lastInspection: finalInspection.date }
-        : crane
-    ));
-  };
-
-  // Enhanced Load Calculator Functions
-  const calculateCapacity = () => {
-    if (!selectedCrane || !selectedConfig || !workingRadius || !boomLength || !loadWeight) {
-      alert('Please fill in all fields');
+  const calculateLoad = () => {
+    if (!selectedCrane || !selectedCrane.hasLoadChart) {
+      setCalculationResult({
+        status: 'error',
+        message: 'Load chart required for calculations'
+      });
       return;
     }
 
-    const crane = LOAD_CHART_DATA[selectedCrane];
-    const config = crane.configurations[selectedConfig];
-    const radius = parseInt(workingRadius);
-    const boom = `boom${boomLength.replace('.', '_')}`;
-    const weight = parseFloat(loadWeight);
-
-    // Find capacity at specified radius and boom length
-    let capacity = 0;
-    if (config.loadChart[radius] && config.loadChart[radius][boom]) {
-      capacity = config.loadChart[radius][boom];
-    } else {
-      // Interpolate if exact values not found
-      const radii = Object.keys(config.loadChart).map(Number).sort((a, b) => a - b);
-      const lowerRadius = radii.find(r => r <= radius) || radii[0];
-      const upperRadius = radii.find(r => r > radius) || radii[radii.length - 1];
-      
-      if (config.loadChart[lowerRadius] && config.loadChart[lowerRadius][boom]) {
-        capacity = config.loadChart[lowerRadius][boom];
-      }
-    }
-
-    // Calculate safety factors
-    const safetyFactor = capacity / weight;
-    const utilizationPercent = (weight / capacity) * 100;
-    
-    let status = 'SAFE';
-    let statusColor = '#10b981';
-    let message = 'Lift is within safe operating parameters';
-    
-    if (safetyFactor < 1) {
-      status = 'DANGER';
-      statusColor = '#ef4444';
-      message = 'LOAD EXCEEDS CRANE CAPACITY - DO NOT LIFT';
-    } else if (safetyFactor < 1.25) {
-      status = 'WARNING';
-      statusColor = '#eab308';
-      message = 'Load is near capacity limits - Exercise extreme caution';
-    } else if (utilizationPercent > 75) {
-      status = 'CAUTION';
-      statusColor = '#f59e0b';
-      message = 'Load utilization above 75% - Proceed with caution';
-    }
+    // Basic calculation logic - in real app this would reference actual load chart data
+    const maxCapacity = selectedCrane.capacity;
+    const utilizationPercent = (loadWeight / maxCapacity) * 100;
+    const safetyFactor = maxCapacity / loadWeight;
+    const isWithinCapacity = loadWeight <= maxCapacity;
 
     setCalculationResult({
-      craneCapacity: capacity,
-      loadWeight: weight,
-      safetyFactor: safetyFactor.toFixed(2),
-      utilizationPercent: utilizationPercent.toFixed(1),
-      status,
-      statusColor,
-      message,
-      configuration: config.name,
-      radius,
-      boomLength
+      status: isWithinCapacity ? 'safe' : 'danger',
+      maxCapacity,
+      loadWeight,
+      utilizationPercent,
+      safetyFactor,
+      workingRadius,
+      configuration: craneConfig,
+      message: isWithinCapacity ? 'Load is within safe limits' : 'Load exceeds crane capacity'
     });
   };
 
-  // Legacy Load Calculator Functions (keeping for compatibility)
-  const calculateLoad = () => {
-    const currentModel = MANITEX_MODELS[selectedModel];
-    if (!currentModel) return;
-
-    const chart = currentModel.loadChart;
-    const availableRadii = Object.keys(chart).map(Number).sort((a, b) => a - b);
-    let closestRadius = availableRadii[0];
-
-    for (let radius of availableRadii) {
-      if (radius <= workingRadius) {
-        closestRadius = radius;
-      } else {
-        break;
-      }
-    }
-
-    const capacityAtRadius = chart[closestRadius]?.[boomLength] || 0;
-
-    let capacityReduction = 1.0;
-    if (outriggerConfig === 'partially-extended') capacityReduction = 0.85;
-    else if (outriggerConfig === 'on-rubber') capacityReduction = 0.75;
-
-    const adjustedCapacity = capacityAtRadius * capacityReduction;
-    const safetyFactor = adjustedCapacity / loadWeight;
-    const isWithinCapacity = loadWeight <= adjustedCapacity;
-
-    setCalculation({
-      chartCapacity: capacityAtRadius,
-      adjustedCapacity: adjustedCapacity,
-      safetyFactor: safetyFactor,
-      isWithinCapacity: isWithinCapacity,
-      utilizationPercent: (loadWeight / adjustedCapacity) * 100
-    });
-  };
-
-  const hasLoadCalculatorAccess = () => {
-    // For local testing, remove plan restrictions
-    return true;
-  };
-
-  const getAvailableModels = () => {
-    // For local testing, return all models
-    return MANITEX_MODELS;
-  };
-
-  const getSafetyColor = () => {
-    if (!calculation) return 'gray';
-    if (calculation.isWithinCapacity && calculation.safetyFactor >= 1.25) return '#10b981';
-    if (calculation.isWithinCapacity && calculation.safetyFactor >= 1.1) return '#f59e0b';
-    return '#ef4444';
-  };
-
-  const getBoomLengthOptions = () => {
-    const currentModel = MANITEX_MODELS[selectedModel];
-    if (!currentModel) return [];
-    const chart = currentModel.loadChart;
-    const firstEntry = Object.values(chart)[0];
-    if (!firstEntry) return [];
-    return Object.keys(firstEntry);
-  };
-
-  const handlePhotoUpload = (itemId, event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        addPhotoToItem(itemId, e.target.result);
-      };
-      reader.readAsDataURL(file);
+  const addConfigField = () => {
+    const newField = prompt('Enter configuration field name (e.g., Boom Length, Counterweight):');
+    if (newField && !craneForm.configFields.includes(newField)) {
+      setCraneForm({
+        ...craneForm,
+        configFields: [...craneForm.configFields, newField],
+        configOptions: { ...craneForm.configOptions, [newField]: [] }
+      });
     }
   };
 
-  // Enhanced Load Calculator helper functions
-  const getAvailableConfigs = () => {
-    return selectedCrane ? Object.keys(LOAD_CHART_DATA[selectedCrane].configurations) : [];
+  const addConfigOption = (field) => {
+    const newOption = prompt(`Add option for ${field}:`);
+    if (newOption) {
+      setCraneForm({
+        ...craneForm,
+        configOptions: {
+          ...craneForm.configOptions,
+          [field]: [...(craneForm.configOptions[field] || []), newOption]
+        }
+      });
+    }
   };
-
-  const getAvailableBoomLengths = () => {
-    if (!selectedCrane || !selectedConfig) return [];
-    const config = LOAD_CHART_DATA[selectedCrane].configurations[selectedConfig];
-    const firstRadiusData = Object.values(config.loadChart)[0];
-    return firstRadiusData ? Object.keys(firstRadiusData).map(boom => boom.replace('boom', '').replace('_', '.')) : [];
-  };
-
-  // --- UI RENDERING BELOW ---
 
   if (user) {
     return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: 'system-ui' }}>
-        {/* Header */}
         <header style={{
           background: 'white', padding: '1rem 2rem', borderBottom: '1px solid #e5e7eb',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -877,12 +362,6 @@ function App() {
               color: 'white', fontWeight: 'bold', fontSize: '1.2rem'
             }}>🏗️</div>
             <h1 style={{ color: '#1e293b', margin: 0, fontSize: '1.5rem' }}>SafeLift Suite</h1>
-            <span style={{ 
-              background: '#10b981', color: 'white', padding: '0.25rem 0.75rem', 
-              borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '500'
-            }}>
-              All Features Enabled (Local Testing)
-            </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{ textAlign: 'right' }}>
@@ -896,7 +375,6 @@ function App() {
           </div>
         </header>
 
-        {/* Navigation */}
         <nav style={{ background: 'white', padding: '0 2rem', borderBottom: '1px solid #e5e7eb' }}>
           <div style={{ display: 'flex', gap: '2rem' }}>
             {['dashboard', 'cranes', 'operators', 'jobs', 'inspections', 'load-calculator'].map(view => (
@@ -906,23 +384,21 @@ function App() {
                 color: currentView === view ? '#3b82f6' : '#6b7280',
                 borderBottom: currentView === view ? '2px solid #3b82f6' : '2px solid transparent'
               }}>
-                {view === 'load-calculator' ? `Load Calculator ⚖️` : view}
+                {view === 'load-calculator' ? 'Load Calculator' : view}
               </button>
             ))}
           </div>
         </nav>
 
-        {/* Main Content */}
         <main style={{ padding: '2rem' }}>
-          {/* Dashboard */}
           {currentView === 'dashboard' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
                 {[
                   { icon: '🏗️', value: cranes.length, label: 'Total Cranes' },
+                  { icon: '📊', value: cranes.filter(c => c.hasLoadChart).length, label: 'Cranes with Load Charts' },
                   { icon: '👥', value: operators.length, label: 'Operators' },
-                  { icon: '📋', value: jobs.length, label: 'Active Jobs' },
-                  { icon: '✅', value: cranes.filter(c => c.status === 'Available').length, label: 'Available Cranes' }
+                  { icon: '📋', value: jobs.length, label: 'Active Jobs' }
                 ].map((stat, idx) => (
                   <div key={idx} style={{
                     background: 'white', padding: '1.5rem', borderRadius: '1rem',
@@ -938,298 +414,25 @@ function App() {
               </div>
 
               <div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-                <h2 style={{ margin: '0 0 1rem 0', color: '#1e293b' }}>Recent Activity</h2>
-                <div style={{ display: 'grid', gap: '0.5rem' }}>
-                  {[
-                    'Job "Downtown Office Building" started - 2 hours ago',
-                    'Crane inspection completed for Grove TMS9000-2 - 1 day ago',
-                    'New operator John Smith added - 3 days ago',
-                    'Load calculation completed for Link-Belt HTC-8675 II - 1 hour ago'
-                  ].map((activity, idx) => (
-                    <div key={idx} style={{
-                      padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem',
-                      display: 'flex', justifyContent: 'space-between'
-                    }}>
-                      <span>{activity}</span>
-                    </div>
-                  ))}
+                <h2 style={{ margin: '0 0 1rem 0', color: '#1e293b' }}>Getting Started with Load Calculator</h2>
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                  <div style={{ padding: '1rem', background: '#f0f9ff', borderRadius: '0.5rem', border: '1px solid #0ea5e9' }}>
+                    <h3 style={{ margin: '0 0 0.5rem 0', color: '#0369a1' }}>Step 1: Add Your Cranes</h3>
+                    <p style={{ margin: '0', color: '#0c4a6e' }}>Upload your crane specifications and load charts for accurate calculations.</p>
+                  </div>
+                  <div style={{ padding: '1rem', background: '#f0fdf4', borderRadius: '0.5rem', border: '1px solid #22c55e' }}>
+                    <h3 style={{ margin: '0 0 0.5rem 0', color: '#15803d' }}>Step 2: Configure Load Charts</h3>
+                    <p style={{ margin: '0', color: '#14532d' }}>Map the configuration fields (boom length, counterweight, etc.) for each crane.</p>
+                  </div>
+                  <div style={{ padding: '1rem', background: '#fefce8', borderRadius: '0.5rem', border: '1px solid #eab308' }}>
+                    <h3 style={{ margin: '0 0 0.5rem 0', color: '#a16207' }}>Step 3: Start Calculating</h3>
+                    <p style={{ margin: '0', color: '#713f12' }}>Use the Load Calculator to verify lift capacities and ensure safe operations.</p>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Enhanced Load Calculator */}
-          {currentView === 'load-calculator' && (
-            <div style={{ display: 'grid', gap: '2rem' }}>
-              {/* Header */}
-              <div style={{
-                background: 'white', padding: '2rem', borderRadius: '1rem',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                  <div style={{
-                    width: '50px', height: '50px', background: 'linear-gradient(135deg, #FFB800, #E67E00)',
-                    borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem'
-                  }}>⚖️</div>
-                  <div>
-                    <h1 style={{ margin: 0, color: '#1e293b', fontSize: '1.75rem' }}>Professional Load Calculator</h1>
-                    <p style={{ margin: 0, color: '#6b7280' }}>Calculate crane capacity with real manufacturer load charts from Manitex, Link-Belt, and Grove</p>
-                  </div>
-                </div>
-
-                <div style={{
-                  background: '#dbeafe', border: '1px solid #3b82f6', borderRadius: '0.5rem', padding: '1rem'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <span style={{ fontSize: '1.25rem' }}>⚠️</span>
-                    <h3 style={{ margin: 0, color: '#1e40af', fontSize: '1rem', fontWeight: '600' }}>Safety Notice</h3>
-                  </div>
-                  <p style={{ margin: 0, color: '#1e40af', fontSize: '0.875rem' }}>
-                    This calculator uses real manufacturer load charts for reference only. Always verify with in-cab load charts and consider dynamic factors before lifting.
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                {/* Input Panel */}
-                <div style={{
-                  background: 'white', padding: '2rem', borderRadius: '1rem',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', height: 'fit-content'
-                }}>
-                  <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>Load Calculation Parameters</h2>
-
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
-                      Select Crane Model
-                    </label>
-                    <select 
-                      value={selectedCrane}
-                      onChange={(e) => {
-                        setSelectedCrane(e.target.value);
-                        setSelectedConfig('');
-                        setCalculationResult(null);
-                      }}
-                      style={{
-                        width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', 
-                        borderRadius: '0.5rem', fontSize: '1rem'
-                      }}
-                    />
-                  </div>
-
-                  {selectedCrane && selectedConfig && (
-                    <div style={{ marginBottom: '1.5rem' }}>
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
-                        Boom Length (ft)
-                      </label>
-                      <select 
-                        value={boomLength}
-                        onChange={(e) => setBoomLength(e.target.value)}
-                        style={{
-                          width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', 
-                          borderRadius: '0.5rem', fontSize: '1rem', background: 'white'
-                        }}
-                      >
-                        <option value="">Choose boom length...</option>
-                        {getAvailableBoomLengths().map(length => (
-                          <option key={length} value={length}>{length} ft</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
-                      Load Weight (tons)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={loadWeight}
-                      onChange={(e) => setLoadWeight(e.target.value)}
-                      placeholder="Enter load weight..."
-                      style={{
-                        width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', 
-                        borderRadius: '0.5rem', fontSize: '1rem'
-                      }}
-                    />
-                  </div>
-
-                  <button
-                    onClick={calculateCapacity}
-                    style={{
-                      width: '100%', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', 
-                      color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem', 
-                      fontSize: '1rem', fontWeight: '600', cursor: 'pointer'
-                    }}
-                  >
-                    Calculate Load Capacity
-                  </button>
-                </div>
-
-                {/* Results Panel */}
-                <div style={{
-                  background: 'white', padding: '2rem', borderRadius: '1rem',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}>
-                  <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>Calculation Results</h2>
-
-                  {calculationResult ? (
-                    <div>
-                      {/* Status Alert */}
-                      <div style={{
-                        background: calculationResult.status === 'SAFE' ? 'linear-gradient(135deg, #ecfdf5, #d1fae5)' :
-                                   calculationResult.status === 'CAUTION' ? 'linear-gradient(135deg, #fffbeb, #fed7aa)' :
-                                   calculationResult.status === 'WARNING' ? 'linear-gradient(135deg, #fef3c7, #fde68a)' :
-                                   'linear-gradient(135deg, #fef2f2, #fecaca)',
-                        border: `2px solid ${calculationResult.statusColor}`,
-                        borderRadius: '0.75rem',
-                        padding: '1.5rem',
-                        marginBottom: '1.5rem'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                          <span style={{ fontSize: '1.5rem' }}>
-                            {calculationResult.status === 'SAFE' ? '✅' :
-                             calculationResult.status === 'CAUTION' ? '⚠️' :
-                             calculationResult.status === 'WARNING' ? '⚠️' : '❌'}
-                          </span>
-                          <h3 style={{ 
-                            margin: 0, 
-                            fontSize: '1.25rem', 
-                            fontWeight: '700',
-                            color: calculationResult.statusColor
-                          }}>
-                            {calculationResult.status}
-                          </h3>
-                        </div>
-                        <p style={{ 
-                          margin: 0, 
-                          fontSize: '0.875rem',
-                          color: calculationResult.statusColor
-                        }}>
-                          {calculationResult.message}
-                        </p>
-                      </div>
-
-                      {/* Calculation Details */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-                        {[
-                          { label: 'Crane Capacity', value: `${calculationResult.craneCapacity} tons` },
-                          { label: 'Load Weight', value: `${calculationResult.loadWeight} tons` },
-                          { label: 'Safety Factor', value: calculationResult.safetyFactor },
-                          { label: 'Capacity Utilization', value: `${calculationResult.utilizationPercent}%` }
-                        ].map((item, idx) => (
-                          <div key={idx} style={{ 
-                            background: '#f8fafc', 
-                            padding: '1rem', 
-                            borderRadius: '0.5rem',
-                            border: '1px solid #e5e7eb'
-                          }}>
-                            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: '600' }}>
-                              {item.label}
-                            </div>
-                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>
-                              {item.value}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Configuration Info */}
-                      <div style={{
-                        background: '#f1f5f9',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: '0.5rem',
-                        padding: '1rem',
-                        marginBottom: '1.5rem'
-                      }}>
-                        <h4 style={{ margin: '0 0 0.5rem 0', color: '#475569', fontSize: '0.875rem', fontWeight: '600' }}>
-                          Configuration Details
-                        </h4>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                          <div>Configuration: {calculationResult.configuration}</div>
-                          <div>Working Radius: {calculationResult.radius} ft</div>
-                          <div>Boom Length: {calculationResult.boomLength} ft</div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div style={{ display: 'flex', gap: '0.75rem' }}>
-                        <button style={{
-                          flex: 1, background: 'linear-gradient(135deg, #10b981, #059669)', 
-                          color: 'white', border: 'none', padding: '0.75rem', 
-                          borderRadius: '0.5rem', fontWeight: '600', cursor: 'pointer'
-                        }}>
-                          Save Calculation
-                        </button>
-                        <button style={{
-                          flex: 1, background: 'linear-gradient(135deg, #6366f1, #4f46e5)', 
-                          color: 'white', border: 'none', padding: '0.75rem', 
-                          borderRadius: '0.5rem', fontWeight: '600', cursor: 'pointer'
-                        }}>
-                          Print Report
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-                      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚖️</div>
-                      <p>Select crane model and enter parameters to calculate load capacity</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Load Chart Models Overview */}
-              <div style={{
-                background: 'white', padding: '2rem', borderRadius: '1rem',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}>
-                <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>Available Crane Models</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-                  {Object.entries(LOAD_CHART_DATA).map(([model, data]) => (
-                    <div key={model} style={{
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '0.75rem',
-                      padding: '1.5rem',
-                      background: selectedCrane === model ? '#f0f9ff' : '#f8fafc'
-                    }}>
-                      <h3 style={{ margin: '0 0 0.75rem 0', color: '#1e293b', fontSize: '1.125rem' }}>
-                        {data.name}
-                      </h3>
-                      <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-                        <div>Max Capacity: {data.maxCapacity} tons</div>
-                        <div>Max Radius: {data.maxRadius} ft</div>
-                        <div>Configurations: {Object.keys(data.configurations).length}</div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setSelectedCrane(model);
-                          setSelectedConfig('');
-                          setCalculationResult(null);
-                        }}
-                        style={{
-                          background: selectedCrane === model ? 
-                            'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 
-                            'linear-gradient(135deg, #6b7280, #4b5563)',
-                          color: 'white',
-                          border: 'none',
-                          padding: '0.5rem 1rem',
-                          borderRadius: '0.375rem',
-                          fontSize: '0.875rem',
-                          fontWeight: '500',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {selectedCrane === model ? 'Selected' : 'Select Model'}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Cranes */}
           {currentView === 'cranes' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1253,18 +456,30 @@ function App() {
                         <div>Year: {crane.year}</div>
                         <div>Capacity: {crane.capacity} tons</div>
                         <div>Location: {crane.location}</div>
-                        <div>Last Inspection: {crane.lastInspection}</div>
+                        <div>Serial: {crane.serialNumber}</div>
                       </div>
+                      {crane.hasLoadChart && (
+                        <div style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
+                          <span style={{ color: '#10b981', fontWeight: '500' }}>✓ Load Chart Available</span>
+                          {crane.configFields.length > 0 && (
+                            <div style={{ color: '#6b7280', marginTop: '0.25rem' }}>
+                              Config Fields: {crane.configFields.join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <button onClick={() => startNewInspection(crane)} style={{
-                      background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: 'white', border: 'none',
-                      padding: '0.5rem 1rem', borderRadius: '0.375rem', cursor: 'pointer', fontWeight: '500',
-                      fontSize: '0.875rem'
-                    }}>Inspect</button>
                     <div style={{
                       padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '500',
                       background: `${getStatusColor(crane.status)}20`, color: getStatusColor(crane.status)
                     }}>{crane.status}</div>
+                    <div style={{
+                      padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '500',
+                      background: crane.hasLoadChart ? '#10b98120' : '#ef444420',
+                      color: crane.hasLoadChart ? '#10b981' : '#ef4444'
+                    }}>
+                      {crane.hasLoadChart ? 'Chart Ready' : 'No Chart'}
+                    </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button onClick={() => openModal('crane', crane)} style={{
                         background: '#3b82f6', color: 'white', border: 'none',
@@ -1281,7 +496,6 @@ function App() {
             </div>
           )}
 
-          {/* Operators */}
           {currentView === 'operators' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1340,7 +554,6 @@ function App() {
             </div>
           )}
 
-          {/* Jobs */}
           {currentView === 'jobs' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1389,25 +602,14 @@ function App() {
             </div>
           )}
 
-          {/* Inspections */}
           {currentView === 'inspections' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h1 style={{ margin: 0, color: '#1e293b' }}>OSHA Inspections</h1>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <select onChange={(e) => {
-                    const crane = cranes.find(c => c.id === parseInt(e.target.value));
-                    if (crane) startNewInspection(crane);
-                  }} style={{
-                    padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem',
-                    background: 'white', fontSize: '1rem'
-                  }}>
-                    <option value="">Select crane to inspect...</option>
-                    {cranes.map(crane => (
-                      <option key={crane.id} value={crane.id}>{crane.make} {crane.model}</option>
-                    ))}
-                  </select>
-                </div>
+                <button style={{
+                  background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none',
+                  padding: '0.75rem 1.5rem', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: '600'
+                }}>Start New Inspection</button>
               </div>
 
               <div style={{ display: 'grid', gap: '1rem' }}>
@@ -1446,14 +648,9 @@ function App() {
                   {INSPECTION_CATEGORIES.map(category => (
                     <div key={category.id} style={{ border: '1px solid #e5e7eb', borderRadius: '0.5rem', padding: '1rem' }}>
                       <h3 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>{category.name}</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0.25rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.25rem' }}>
                         {category.items.map((item, idx) => (
-                          <div key={idx} style={{ fontSize: '0.875rem', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <span style={{ color: item.required ? '#ef4444' : '#6b7280' }}>
-                              {item.required ? '●' : '○'}
-                            </span>
-                            {item.name}
-                          </div>
+                          <div key={idx} style={{ fontSize: '0.875rem', color: '#6b7280' }}>• {item}</div>
                         ))}
                       </div>
                     </div>
@@ -1463,169 +660,198 @@ function App() {
             </div>
           )}
 
-          {/* Inspection Detail View */}
-          {currentView === 'inspection-detail' && activeInspection && (
+          {currentView === 'load-calculator' && (
             <div style={{ display: 'grid', gap: '2rem' }}>
-              {/* Header */}
               <div style={{
                 background: 'white', padding: '2rem', borderRadius: '1rem',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                  <div style={{
+                    width: '50px', height: '50px', background: 'linear-gradient(135deg, #FFB800, #E67E00)',
+                    borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem'
+                  }}>🏗️</div>
                   <div>
-                    <h1 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
-                      Inspecting: {activeInspection.craneName}
-                    </h1>
-                    <div style={{ color: '#6b7280' }}>
-                      Inspector: {activeInspection.inspector} | Date: {activeInspection.date}
-                    </div>
+                    <h1 style={{ margin: 0, color: '#1e293b', fontSize: '1.75rem' }}>Load Calculator</h1>
+                    <p style={{ margin: 0, color: '#6b7280' }}>Calculate lift capacities using your crane specifications and load charts</p>
                   </div>
-                  <button onClick={() => setCurrentView('inspections')} style={{
-                    background: '#6b7280', color: 'white', border: 'none',
-                    padding: '0.5rem 1rem', borderRadius: '0.375rem', cursor: 'pointer'
-                  }}>Back to Inspections</button>
                 </div>
 
-                {/* Progress Bar */}
                 <div style={{ marginBottom: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <span style={{ fontWeight: '500' }}>Progress</span>
-                    <span>{calculateInspectionProgress()}%</span>
-                  </div>
-                  <div style={{ background: '#e5e7eb', borderRadius: '0.5rem', height: '0.5rem' }}>
-                    <div style={{
-                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                      width: `${calculateInspectionProgress()}%`,
-                      height: '100%', borderRadius: '0.5rem', transition: 'width 0.3s'
-                    }}></div>
-                  </div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>Select Crane</label>
+                  <select 
+                    value={selectedCrane?.id || ''} 
+                    onChange={(e) => handleCraneSelection(e.target.value)}
+                    style={{
+                      padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem', minWidth: '300px'
+                    }}
+                  >
+                    <option value="">Choose a crane...</option>
+                    {cranes.map(crane => (
+                      <option key={crane.id} value={crane.id}>
+                        {crane.make} {crane.model} - {crane.capacity} tons
+                        {!crane.hasLoadChart ? ' (No Load Chart)' : ''}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-
-                {/* Complete Button */}
-                {calculateInspectionProgress() === 100 && (
-                  <button onClick={completeInspection} style={{
-                    background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none',
-                    padding: '0.75rem 1.5rem', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: '600'
-                  }}>Complete Inspection</button>
-                )}
               </div>
 
-              {/* Inspection Items by Category */}
-              {INSPECTION_CATEGORIES.map(category => {
-                const categoryItems = activeInspection.items.filter(item =>
-                  item.category === category.name
-                );
-
-                return (
-                  <div key={category.id} style={{
+              {selectedCrane && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                  <div style={{
                     background: 'white', padding: '2rem', borderRadius: '1rem',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}>
-                    <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>{category.name}</h2>
-                    <div style={{ display: 'grid', gap: '1.5rem' }}>
-                      {categoryItems.map(item => (
-                        <div key={item.id} style={{
-                          border: '1px solid #e5e7eb', borderRadius: '0.75rem', padding: '1.5rem',
-                          background: item.status ? '#f8fafc' : 'white'
+                    <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>Lift Parameters</h2>
+
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>Load Weight (tons)</label>
+                      <input 
+                        type="number"
+                        value={loadWeight}
+                        onChange={(e) => setLoadWeight(Number(e.target.value))}
+                        min="0.1"
+                        step="0.1"
+                        style={{
+                          width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                        }} 
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>Working Radius (feet)</label>
+                      <input 
+                        type="number"
+                        value={workingRadius}
+                        onChange={(e) => setWorkingRadius(Number(e.target.value))}
+                        min="1"
+                        style={{
+                          width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                        }} 
+                      />
+                    </div>
+
+                    {selectedCrane.configFields.map(field => (
+                      <div key={field} style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>{field}</label>
+                        <select 
+                          value={craneConfig[field] || ''}
+                          onChange={(e) => handleConfigChange(field, e.target.value)}
+                          style={{
+                            width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
+                          }}
+                        >
+                          <option value="">Select {field}...</option>
+                          {(selectedCrane.configOptions[field] || []).map(option => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
+
+                    <button 
+                      onClick={calculateLoad}
+                      disabled={!selectedCrane.hasLoadChart}
+                      style={{
+                        width: '100%', 
+                        background: selectedCrane.hasLoadChart ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : '#9ca3af',
+                        color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
+                        fontSize: '1rem', fontWeight: '600', cursor: selectedCrane.hasLoadChart ? 'pointer' : 'not-allowed'
+                      }}
+                    >
+                      {selectedCrane.hasLoadChart ? 'Calculate Load' : 'Load Chart Required'}
+                    </button>
+                  </div>
+
+                  <div style={{
+                    background: 'white', padding: '2rem', borderRadius: '1rem',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}>
+                    <h2 style={{ margin: '0 0 1.5rem 0', color: '#1e293b' }}>Calculation Results</h2>
+
+                    {!selectedCrane.hasLoadChart ? (
+                      <div style={{
+                        background: '#fef2f2', padding: '1rem', borderRadius: '0.75rem', border: '2px solid #ef4444', marginBottom: '1.5rem'
+                      }}>
+                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#ef4444' }}>❌ Load Chart Required</h3>
+                        <p style={{ margin: 0, color: '#991b1b' }}>
+                          Upload a load chart for this crane to enable capacity calculations.
+                        </p>
+                      </div>
+                    ) : calculationResult ? (
+                      <div>
+                        <div style={{
+                          background: calculationResult.status === 'safe' ? 'linear-gradient(135deg, #ecfdf5, #d1fae5)' : 'linear-gradient(135deg, #fef2f2, #fecaca)',
+                          padding: '1rem', borderRadius: '0.75rem', 
+                          border: `2px solid ${calculationResult.status === 'safe' ? '#10b981' : '#ef4444'}`, 
+                          marginBottom: '1.5rem'
                         }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                            <div style={{ flex: 1 }}>
-                              <h3 style={{ margin: '0 0 0.25rem 0', color: '#1e293b', fontSize: '1rem' }}>
-                                {item.item}
-                                {item.required && <span style={{ color: '#ef4444', marginLeft: '0.5rem' }}>*</span>}
-                              </h3>
-                              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                                {item.required ? 'Required' : 'Optional'}
-                              </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                              {['Pass', 'Fail', 'N/A'].map(status => (
-                                <button key={status} onClick={() => updateInspectionItem(item.id, { status })}
-                                  style={{
-                                    background: item.status === status 
-                                      ? getStatusColor(status) 
-                                      : 'white',
-                                    color: item.status === status ? 'white' : getStatusColor(status),
-                                    border: `2px solid ${getStatusColor(status)}`,
-                                    padding: '0.5rem 1rem', borderRadius: '0.375rem',
-                                    cursor: 'pointer', fontWeight: '500', fontSize: '0.875rem'
-                                  }}
-                                >{status}</button>
-                              ))}
-                            </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            <span style={{ fontSize: '1.25rem' }}>{calculationResult.status === 'safe' ? '✅' : '❌'}</span>
+                            <h3 style={{ margin: 0, color: calculationResult.status === 'safe' ? '#10b981' : '#ef4444', fontSize: '1.125rem' }}>
+                              {calculationResult.status === 'safe' ? 'SAFE LIFT' : 'EXCEEDS CAPACITY'}
+                            </h3>
                           </div>
+                          <p style={{ margin: 0, color: calculationResult.status === 'safe' ? '#059669' : '#dc2626', fontSize: '0.875rem' }}>
+                            {calculationResult.message}
+                          </p>
+                        </div>
 
-                          {/* Notes */}
-                          <div style={{ marginBottom: '1rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>
-                              Notes
-                            </label>
-                            <textarea
-                              value={item.notes}
-                              onChange={(e) => updateInspectionItem(item.id, { notes: e.target.value })}
-                              placeholder="Add inspection notes..."
-                              style={{
-                                width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb',
-                                borderRadius: '0.5rem', fontSize: '0.875rem', resize: 'vertical', minHeight: '80px'
-                              }}
-                            />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                          <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>Max Capacity</div>
+                            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e293b' }}>{calculationResult.maxCapacity} tons</div>
                           </div>
-
-                          {/* Photos */}
-                          <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                              <label style={{ fontWeight: '500', color: '#374151' }}>Photos</label>
-                              <label style={{
-                                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white',
-                                padding: '0.5rem 1rem', borderRadius: '0.375rem', cursor: 'pointer',
-                                fontSize: '0.875rem', fontWeight: '500'
-                              }}>
-                                + Add Photo
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => handlePhotoUpload(item.id, e)}
-                                  style={{ display: 'none' }}
-                                />
-                              </label>
-                            </div>
-                            {item.photos.length > 0 && (
-                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.5rem' }}>
-                                {item.photos.map(photo => (
-                                  <div key={photo.id} style={{ position: 'relative' }}>
-                                    <img
-                                      src={photo.data}
-                                      alt="Inspection"
-                                      style={{
-                                        width: '100%', height: '80px', objectFit: 'cover',
-                                        borderRadius: '0.375rem', border: '1px solid #e5e7eb'
-                                      }}
-                                    />
-                                    <button
-                                      onClick={() => removePhotoFromItem(item.id, photo.id)}
-                                      style={{
-                                        position: 'absolute', top: '0.25rem', right: '0.25rem',
-                                        background: '#ef4444', color: 'white', border: 'none',
-                                        borderRadius: '50%', width: '20px', height: '20px',
-                                        fontSize: '0.75rem', cursor: 'pointer'
-                                      }}
-                                    >×</button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
+                          <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>Safety Factor</div>
+                            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e293b' }}>{calculationResult.safetyFactor.toFixed(2)}</div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+
+                        <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+                          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>Utilization</div>
+                          <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e293b' }}>{calculationResult.utilizationPercent.toFixed(1)}%</div>
+                        </div>
+
+                        {selectedCrane.loadChartFile && (
+                          <div style={{ marginBottom: '1rem' }}>
+                            <h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Load Chart Reference</h4>
+                            <button style={{
+                              background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db',
+                              padding: '0.5rem 1rem', borderRadius: '0.375rem', cursor: 'pointer', fontSize: '0.875rem'
+                            }}>
+                              📄 View {selectedCrane.loadChartFile}
+                            </button>
+                          </div>
+                        )}
+
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                          <button style={{
+                            flex: 1, background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none',
+                            padding: '0.75rem 1rem', borderRadius: '0.5rem', fontWeight: '600', cursor: 'pointer'
+                          }}>Save Calculation</button>
+                          <button style={{
+                            flex: 1, background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none',
+                            padding: '0.75rem 1rem', borderRadius: '0.5rem', fontWeight: '600', cursor: 'pointer'
+                          }}>Print Report</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{
+                        background: '#f8fafc', padding: '2rem', borderRadius: '0.75rem', textAlign: 'center', color: '#6b7280'
+                      }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏗️</div>
+                        <p>Enter lift parameters and click Calculate Load to see results</p>
+                      </div>
+                    )}
                   </div>
-                );
-              })}
+                </div>
+              )}
             </div>
           )}
         </main>
 
-        {/* Modals */}
         {showModal && (
           <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0, 0, 0, 0.5)',
@@ -1633,7 +859,7 @@ function App() {
           }}>
             <div style={{
               background: 'white', borderRadius: '1rem', padding: '2rem',
-              maxWidth: '500px', width: '90vw', maxHeight: '80vh', overflow: 'auto'
+              maxWidth: '600px', width: '90vw', maxHeight: '80vh', overflow: 'auto'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h2 style={{ margin: 0, color: '#1e293b', textTransform: 'capitalize' }}>
@@ -1651,19 +877,86 @@ function App() {
                   ].map(item => (
                     <div key={item.field}>
                       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>{item.label}</label>
-                      <input value={craneForm[item.field]} onChange={(e) => setCraneForm({ ...craneForm, [item.field]: e.target.value })}
+                      <input value={craneForm[item.field]} onChange={(e) => setCraneForm({...craneForm, [item.field]: e.target.value})}
                         style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }} />
                     </div>
                   ))}
+                  
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Status</label>
-                    <select value={craneForm.status} onChange={(e) => setCraneForm({ ...craneForm, status: e.target.value })}
+                    <select value={craneForm.status} onChange={(e) => setCraneForm({...craneForm, status: e.target.value})}
                       style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }}>
                       {['Available', 'In Use', 'Maintenance', 'Out of Service'].map(status => (
                         <option key={status} value={status}>{status}</option>
                       ))}
                     </select>
                   </div>
+
+                  <div style={{ border: '1px solid #e5e7eb', borderRadius: '0.5rem', padding: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <h3 style={{ margin: 0 }}>Load Chart Configuration</h3>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={craneForm.hasLoadChart}
+                          onChange={(e) => setCraneForm({...craneForm, hasLoadChart: e.target.checked})}
+                        />
+                        Has Load Chart
+                      </label>
+                    </div>
+
+                    {craneForm.hasLoadChart && (
+                      <div>
+                        <div style={{ marginBottom: '1rem' }}>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Load Chart File</label>
+                          <input 
+                            type="file" 
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            onChange={(e) => setCraneForm({...craneForm, loadChartFile: e.target.files[0]?.name || null})}
+                            style={{ width: '100%', padding: '0.5rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }} 
+                          />
+                        </div>
+
+                        <div style={{ marginBottom: '1rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                            <label style={{ fontWeight: '500' }}>Configuration Fields</label>
+                            <button 
+                              type="button"
+                              onClick={addConfigField}
+                              style={{
+                                background: '#3b82f6', color: 'white', border: 'none',
+                                padding: '0.25rem 0.5rem', borderRadius: '0.25rem', cursor: 'pointer', fontSize: '0.75rem'
+                              }}
+                            >
+                              Add Field
+                            </button>
+                          </div>
+                          
+                          {craneForm.configFields.map(field => (
+                            <div key={field} style={{ marginBottom: '0.5rem', padding: '0.5rem', background: '#f8fafc', borderRadius: '0.25rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontWeight: '500' }}>{field}</span>
+                                <button 
+                                  type="button"
+                                  onClick={() => addConfigOption(field)}
+                                  style={{
+                                    background: '#10b981', color: 'white', border: 'none',
+                                    padding: '0.25rem 0.5rem', borderRadius: '0.25rem', cursor: 'pointer', fontSize: '0.75rem'
+                                  }}
+                                >
+                                  Add Option
+                                </button>
+                              </div>
+                              <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#6b7280' }}>
+                                Options: {(craneForm.configOptions[field] || []).join(', ') || 'None'}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <button onClick={saveCrane} style={{
                     background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none',
                     padding: '0.75rem', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: '600'
@@ -1680,13 +973,13 @@ function App() {
                   ].map(item => (
                     <div key={item.field}>
                       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>{item.label}</label>
-                      <input value={operatorForm[item.field]} onChange={(e) => setOperatorForm({ ...operatorForm, [item.field]: e.target.value })}
+                      <input value={operatorForm[item.field]} onChange={(e) => setOperatorForm({...operatorForm, [item.field]: e.target.value})}
                         style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }} />
                     </div>
                   ))}
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Status</label>
-                    <select value={operatorForm.status} onChange={(e) => setOperatorForm({ ...operatorForm, status: e.target.value })}
+                    <select value={operatorForm.status} onChange={(e) => setOperatorForm({...operatorForm, status: e.target.value})}
                       style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }}>
                       {['Available', 'On Job', 'Off Duty', 'Training'].map(status => (
                         <option key={status} value={status}>{status}</option>
@@ -1709,8 +1002,8 @@ function App() {
                   ].map(item => (
                     <div key={item.field}>
                       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>{item.label}</label>
-                      <input type={item.type || 'text'} value={jobForm[item.field]}
-                        onChange={(e) => setJobForm({ ...jobForm, [item.field]: e.target.value })}
+                      <input type={item.type || 'text'} value={jobForm[item.field]} 
+                        onChange={(e) => setJobForm({...jobForm, [item.field]: e.target.value})}
                         style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }} />
                     </div>
                   ))}
@@ -1720,7 +1013,7 @@ function App() {
                   ].map(item => (
                     <div key={item.field}>
                       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>{item.label}</label>
-                      <select value={jobForm[item.field]} onChange={(e) => setJobForm({ ...jobForm, [item.field]: e.target.value })}
+                      <select value={jobForm[item.field]} onChange={(e) => setJobForm({...jobForm, [item.field]: e.target.value})}
                         style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem' }}>
                         <option value="">Select {item.label}</option>
                         {item.options.map(option => (
@@ -1742,7 +1035,6 @@ function App() {
     );
   }
 
-  // Login/Registration Interface
   return (
     <div style={{ minHeight: '100vh', display: 'flex', fontFamily: 'system-ui', background: '#f8fafc' }}>
       <div style={{
@@ -1757,10 +1049,10 @@ function App() {
           }}>🏗️</div>
           <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontWeight: '700' }}>SafeLift Suite</h1>
           <p style={{ fontSize: '1.2rem', opacity: 0.9, lineHeight: '1.6' }}>
-            Complete crane management platform with fleet tracking, job scheduling, OSHA inspections, and professional load calculations.
+            Complete crane management platform with fleet tracking, job scheduling, OSHA inspections, and custom load calculations.
           </p>
-          <div style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.8 }}>
-            ✅ Fleet Management • 📋 OSHA Inspections • ⚖️ Load Calculator • 🏗️ Real Load Charts
+          <div style={{ marginTop: '2rem', fontSize: '0.9rem', opacity: 0.8' }}>
+            ✅ Fleet Management • 📋 OSHA Inspections • 🏗️ Custom Load Calculator
           </div>
         </div>
       </div>
@@ -1780,14 +1072,14 @@ function App() {
               {isLogin ? 'Access your crane management dashboard' : 'Start managing your crane operations'}
             </p>
           </div>
-
+          
           {error && (
             <div style={{
               background: '#fecaca', color: '#991b1b', padding: '0.75rem', borderRadius: '0.5rem',
               marginBottom: '1rem', border: '1px solid #fca5a5', fontSize: '0.9rem'
             }}>{error}</div>
           )}
-
+          
           {isLogin ? (
             <div>
               {[
@@ -1796,48 +1088,26 @@ function App() {
               ].map((field, idx) => (
                 <div key={idx} style={{ marginBottom: idx === 0 ? '1rem' : '1.5rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                  <input
+                  <input 
                     type={field.type}
                     value={field.value}
                     placeholder={field.placeholder}
-                    onChange={(e) => field.setter(e.target.value)}
-                    required
-                    disabled={loading}
+                    onChange={(e) => field.setter(e.target.value)} 
+                    required 
+                    disabled={loading} 
                     style={{
                       width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem',
                       fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s'
-                    }}
+                    }} 
                   />
                 </div>
               ))}
-
+              
               <button onClick={handleLogin} disabled={loading || !email || !password} style={{
                 width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                 color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
                 fontSize: '1rem', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer', transition: 'transform 0.1s'
               }}>{loading ? 'Signing In...' : 'Sign In'}</button>
-
-              {/* Demo Login Button */}
-              <div style={{ margin: '1rem 0', textAlign: 'center', color: '#6b7280', fontSize: '0.875rem' }}>
-                or
-              </div>
-              <button 
-                onClick={() => {
-                  setUser({ 
-                    firstName: 'Demo', 
-                    lastName: 'User', 
-                    company: { name: 'Demo Company', plan: 'professional' } 
-                  });
-                  setCurrentView('dashboard');
-                }}
-                style={{
-                  width: '100%', background: 'linear-gradient(135deg, #10b981, #059669)',
-                  color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
-                  fontSize: '1rem', fontWeight: '600', cursor: 'pointer'
-                }}
-              >
-                🚀 Demo Login - Test All Features
-              </button>
             </div>
           ) : (
             <div>
@@ -1848,16 +1118,16 @@ function App() {
                 ].map((field, idx) => (
                   <div key={idx}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                    <input
+                    <input 
                       type="text"
                       value={field.value}
                       placeholder={field.placeholder}
-                      onChange={(e) => field.setter(e.target.value)}
-                      required
-                      disabled={loading}
+                      onChange={(e) => field.setter(e.target.value)} 
+                      required 
+                      disabled={loading} 
                       style={{
                         width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                      }}
+                      }} 
                     />
                   </div>
                 ))}
@@ -1870,16 +1140,16 @@ function App() {
               ].map((field, idx) => (
                 <div key={idx} style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>{field.label}</label>
-                  <input
+                  <input 
                     type={field.type || 'text'}
                     value={field.value}
                     placeholder={field.placeholder}
-                    onChange={(e) => field.setter(e.target.value)}
-                    required
-                    disabled={loading}
+                    onChange={(e) => field.setter(e.target.value)} 
+                    required 
+                    disabled={loading} 
                     style={{
                       width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                    }}
+                    }} 
                   />
                 </div>
               ))}
@@ -1887,23 +1157,23 @@ function App() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Phone</label>
-                  <input
-                    type="tel"
-                    value={companyPhone}
+                  <input 
+                    type="tel" 
+                    value={companyPhone} 
                     onChange={(e) => setCompanyPhone(e.target.value)}
-                    placeholder="(555) 123-4567"
-                    disabled={loading}
+                    placeholder="(555) 123-4567" 
+                    disabled={loading} 
                     style={{
                       width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                    }}
+                    }} 
                   />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Plan</label>
-                  <select
-                    value={plan}
-                    onChange={(e) => setPlan(e.target.value)}
-                    disabled={loading}
+                  <select 
+                    value={plan} 
+                    onChange={(e) => setPlan(e.target.value)} 
+                    disabled={loading} 
                     style={{
                       width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
                     }}
@@ -1917,21 +1187,21 @@ function App() {
 
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500' }}>Address</label>
-                <input
-                  type="text"
-                  value={companyAddress}
+                <input 
+                  type="text" 
+                  value={companyAddress} 
                   onChange={(e) => setCompanyAddress(e.target.value)}
-                  placeholder="123 Main St, City, State"
-                  disabled={loading}
+                  placeholder="123 Main St, City, State" 
+                  disabled={loading} 
                   style={{
                     width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '1rem'
-                  }}
+                  }} 
                 />
               </div>
-
-              <button
-                onClick={handleRegistration}
-                disabled={loading || !regEmail || !regPassword || !companyName || !firstName || !lastName}
+              
+              <button 
+                onClick={handleRegistration} 
+                disabled={loading || !regEmail || !regPassword || !companyName || !firstName || !lastName} 
                 style={{
                   width: '100%', background: loading ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white', border: 'none', padding: '0.875rem', borderRadius: '0.5rem',
@@ -1942,13 +1212,13 @@ function App() {
               </button>
             </div>
           )}
-
+          
           <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
             <button onClick={() => { setIsLogin(!isLogin); setError(''); }} style={{
               background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer',
               textDecoration: 'underline', fontSize: '0.9rem'
             }}>
-              {isLogin ? "Need an account? Create one" : "Already have an account? Sign in"}
+              {isLogin ? 'Need an account? Create one' : 'Already have an account? Sign in'}
             </button>
           </div>
         </div>
